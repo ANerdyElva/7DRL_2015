@@ -12,8 +12,6 @@ class Atlas:
 
         self.mapping = {}
 
-        print( self.tileCount )
-
     def map_values_to_font( self, val, count, tileX, tileY ):
         for i in range( count ):
             self.map_val_to_font( val, tileX, tileY )
@@ -26,7 +24,6 @@ class Atlas:
 
     def map_val_to_font( self, val, tileX, tileY ):
         n = ( tileX * self.tileSize[0], tileY * self.tileSize[1] )
-        print( ( n, tileX, tileY ) )
         self.mapping[ val ] = self.image.subsurface( pygame.Rect( n[0], n[1], self.tileSize[0], self.tileSize[1] ) )
 
     def render( self, val, target, dstX, dstY ):
