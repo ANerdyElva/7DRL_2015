@@ -19,7 +19,7 @@ class TileType:
 
         TileTypes[ self.typeId ] = self
 
-    def render( self, target, x, y ):
+    def render( self, target, x, y, worldX, worldY ):
         pass
 
 class BaseTileType( TileType ):
@@ -28,5 +28,25 @@ class BaseTileType( TileType ):
         self.atlas = atlas
         self.atlasIndex = atlasIndex
 
-    def render( self, target, x, y ):
+    def render( self, target, x, y, worldX, worldY ):
         self.atlas.render( self.atlasIndex, target, x, y )
+
+def bsd_rand(seed):
+    seed = (1103515245 * seed + 12345) & 0x7fffffff
+    seed = (1103515245 * seed + 12345) & 0x7fffffff
+    seed = (1103515245 * seed + 12345) & 0x7fffffff
+    return seed
+
+class MultiTileType( BaseTileType ):
+    def __init__( self, typeId, name, atlas, atlasIndex, atlasEnd ):
+        super().__init__( typeId, name, atlas, atlasIndex )
+        self.atlasEnd = atlasEnd
+
+    def render( self, target, x, y, worldX, worldY ):
+        _hash = ( bsd_rand( worldX ) ^ bsd_rand( worldY ) ) & 127
+
+        if _hash < 64:
+            self.atlas.render( self.atlasIndex, target, x, y )
+        else:
+            offset = ( ( _hash - 64 ) / 64.0 )
+            self.atlas.render( self.atlasIndex + int( offset * self.atlasEnd ), target, x, y )
