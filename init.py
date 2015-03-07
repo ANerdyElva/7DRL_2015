@@ -1,30 +1,42 @@
-from TileTypes import *
+import pygame
 
+from TileTypes import *
 from Map import Map
 from MapGen import *
 from Atlas import Atlas
 
-_map = Map( 500, 500 )
-
 tileSize = ( 32, 32 )
+tileCount = ( 500, 500 )
 tiles = Atlas( 'tiles.png', tileSize )
 
-_map.makeMap( initializeRandom, preIterInit, postInit )
-_map.preRender( tiles )
+#Empty
+tiles.map_val_to_font( 0, 7, 0 )
+tiles.map_values_to_font( 8, 4, 0, 1 )
+tiles.map_values_to_font( 16, 7, 0, 0 )
 
-pos = [ 250, 250 ]
-running = True
+TileType( TILE_AIR, 'Air' )
 
-import pygame
-pygame.init()
+BaseTileType( TILE_WALL, 'Wall', tiles, 16 )
+BaseTileType( TILE_FIXED_WALL, 'Fixed wall', tiles, 8 )
 
 screen = pygame.display.set_mode( ( 1280, 960 ) )
+screenTiles = ( int( screen.get_width() / tileSize[0] ), int( screen.get_height() / tileSize[1] ) )
+
+_map = Map( tileCount[0], tileCount[1], tiles, screen )
+_map.makeMap( initializeRandom, preIterInit, postInit )
+
+pos = [ tileCount[0] / 2, tileCount[1] / 2 ]
+running = True
+
+pygame.init()
+
 screenTileSize = ( int( 1280 / tileSize[0] ), int( 960 / tileSize[1] ) )
 pygame.display.set_caption( "That's okay. You've got explosives." )
 
 done = False
 
 clock = pygame.time.Clock()
+
 
 while not done:
     #Event handling
@@ -45,12 +57,12 @@ while not done:
     #Game logic
 
     #Game drawing
-    camX = min( max( ( pos[0] * tileSize[0] ) - screen.get_width() / 2, 0 ), _map.surface.get_width() - screen.get_width() )
-    camY = min( max( ( pos[1] * tileSize[1] ) - screen.get_height() / 2, 0 ), _map.surface.get_height() - screen.get_height() )
+    camX = min( max( pos[0] - int( screenTiles[0] / 2 ), 0 ), tileCount[0] - screenTiles[0] )
+    camY = min( max( pos[1] - int( screenTiles[1] / 2 ), 0 ), tileCount[1] - screenTiles[1] )
 
     screen.fill( ( 255, 255, 255 ) )
 
-    _map.render( screen, camX, camY )
+    _map.render( camX * tileSize[0], camY * tileSize[1] )
 
     pygame.display.flip()
     clock.tick(60)

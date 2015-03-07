@@ -5,9 +5,14 @@ import pygame
 from TileTypes import *
 
 class Map:
-    def __init__( self, width, height ):
+    def __init__( self, width, height, tiles, screen ):
         self.width = width
         self.height = height
+        self.surface = None
+
+        self.renderDirty = True
+        self.atlas = tiles
+        self.target = screen
 
     def I( self, x, y ):
         return x + y * self.width
@@ -72,26 +77,44 @@ class Map:
         postInit( self, I, _buffer )
         self._buffer = _buffer
 
-    def preRender( self, atlas ):
-        self.surface = pygame.Surface( (
-            self.width * atlas.tileSize[0],
-            self.height * atlas.tileSize[1] ) )
+    def preRender( self, camX, camY ):
+        tileCount = (
+                ( int( self.target.get_width() / self.atlas.tileSize[0] ) + 2 ),
+                ( int( self.target.get_height() / self.atlas.tileSize[1] ) + 2 ) )
 
-        atlas.map_values_to_font( 0, 7, 0, 0 )
-        atlas.map_values_to_font( 8, 4, 0, 1 )
-        atlas.map_values_to_font( 16, 4, 7, 0 )
+        if self.surface is None:
+            self.surface = pygame.Surface( (
+                 tileCount[0] * self.atlas.tileSize[0],
+                 tileCount[1] * self.atlas.tileSize[1]
+                 ) )
 
-        for y in range( self.height ):
-            for x in range( self.width ):
-                i = self.I( x, y )
+        self.surface.fill( ( 0, 0, 0 ) )
+
+        for y in range( tileCount[1] ):
+            _y = y * self.atlas.tileSize[1]
+
+            if y + camY >= self.height:
+                continue
+
+            for x in range( tileCount[0] ):
+                if x + camX >= self.width:
+                    continue
+
+                i = self.I( x + camX, y + camY )
                 val = self._buffer[ i ]
-                
-                if val == TILE_FIXED_WALL:
-                    atlas.render( 8, self.surface, x * atlas.tileSize[0], y * atlas.tileSize[1] )
-                elif val == TILE_WALL:
-                    atlas.render( 0, self.surface, x * atlas.tileSize[0], y * atlas.tileSize[1] )
-                #else:
-                #    atlas.render( 16, self.surface, x * atlas.tileSize[0], y * atlas.tileSize[1] )
+                _x = x * self.atlas.tileSize[1]
 
-    def render( self, screen, x, y ):
-        screen.blit( self.surface.subsurface( pygame.Rect( x, y, screen.get_width(), screen.get_height()  ) ), ( 0, 0 ) )
+                TileTypes[ val ].render( self.surface, _x, _y )
+
+    def render( self, x, y ):
+        renderX = int( x / self.atlas.tileSize[0] )
+        renderY = int( y / self.atlas.tileSize[1] )
+        if ( self.renderDirty or renderX != self.lastRenderX or renderY != self.lastRenderY ):
+            self.renderDirty = False
+            self.lastRenderX = renderX
+            self.lastRenderY = renderY
+
+            self.preRender( renderX, renderY )
+
+        rect = pygame.Rect( x % self.atlas.tileSize[0], y % self.atlas.tileSize[1], self.target.get_width(), self.target.get_height() )
+        self.target.blit( self.surface.subsurface( rect ), ( 0, 0 ) )
