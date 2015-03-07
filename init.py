@@ -1,44 +1,74 @@
-import libtcodpy as tcod
 from TileTypes import *
-
-print( [ ( n, getattr( tcod, n ) ) for n in dir( tcod ) if n[:4] == 'FONT' ] )
 
 from Map import Map
 from MapGen import *
-
-SCREEN_WIDTH = 180
-SCREEN_HEIGHT = 100
-
-#tcod.console_set_custom_font(b'data/fonts/arial10x10.png', tcod.FONT_TYPE_GREYSCALE | tcod.FONT_LAYOUT_TCOD)
-tcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT, b'python/tcod tutorial', False)
+from Atlas import Atlas
 
 _map = Map( 500, 500 )
 
+tiles = Atlas( 'tiles.png', ( 32, 32 ) )
+
 _map.makeMap( initializeRandom, preIterInit, postInit )
-_map.render()
+_map.render( tiles )
 
 pos = [ 250, 250 ]
 running = True
 
-def handleKey( key ):
-    if key.vk == tcod.KEY_ESCAPE:
-        global running
-        running = False
-    elif key.c == ord('w'):
+import pygame
+pygame.init()
+
+screen = pygame.display.set_mode( ( 1280, 960 ) )
+pygame.display.set_caption( "That's okay. You've got explosives." )
+
+done = False
+
+clock = pygame.time.Clock()
+
+while not done:
+    #Event handling
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT or ( event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE ):
+            done = True
+
+    curKeys = pygame.key.get_pressed()
+    if curKeys[pygame.K_w]:
         pos[1] -= 1
-    elif key.c == ord('s'):
+    if curKeys[pygame.K_s]:
         pos[1] += 1
-    elif key.c == ord('a'):
+    if curKeys[pygame.K_a]:
         pos[0] -= 1
-    elif key.c == ord('d'):
+    if curKeys[pygame.K_d]:
         pos[0] += 1
 
+    #Game logic
 
-while not tcod.console_is_window_closed() and running:
-    offsetX = pos[0] - int( SCREEN_WIDTH / 2 )
-    offsetY = pos[1] - int( SCREEN_HEIGHT / 2 )
+    #Game drawing
+    screen.fill( ( 255, 255, 255 ) )
 
-    tcod.console_blit( _map.console, offsetX, offsetY, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0, 1.0, 1.0 )
+    screen.blit( _map.surface.subsurface( pygame.Rect( pos[0] * 32, pos[1] * 32, screen.get_width(), screen.get_height()  ) ), ( 0, 0 ) )
 
-    tcod.console_flush()
-    handleKey( tcod.console_wait_for_keypress( False ) )
+    pygame.display.flip()
+    clock.tick(60)
+
+#def handleKey( key ):
+#    if key.vk == tcod.KEY_ESCAPE:
+#        global running
+#        running = False
+#    elif key.c == ord('w'):
+#        pos[1] -= 1
+#    elif key.c == ord('s'):
+#        pos[1] += 1
+#    elif key.c == ord('a'):
+#        pos[0] -= 1
+#    elif key.c == ord('d'):
+#        pos[0] += 1
+#
+#
+#while not tcod.console_is_window_closed() and running:
+#    offsetX = pos[0] - int( SCREEN_WIDTH / 2 )
+#    offsetY = pos[1] - int( SCREEN_HEIGHT / 2 )
+#
+#    tcod.console_blit( _map.console, offsetX, offsetY, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0, 1.0, 1.0 )
+#
+#    tcod.console_flush()
+#    handleKey( tcod.console_wait_for_keypress( False ) )
