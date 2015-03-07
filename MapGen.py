@@ -3,6 +3,8 @@ import random
 
 from TileTypes import *
 
+centerRoomSize = ( 5, 5 )
+
 def initializeRandom( x, y ):
     dist = math.sqrt( x ** 2 + y ** 2 )
     angle = math.atan2( x, y ) / math.pi * 5
@@ -14,7 +16,83 @@ def initializeRandom( x, y ):
     else:
         return 0
 
+def circle(x0, y0, radius, endRadius, cb):
+    stepSize = 1.0 / endRadius
+
+    angle = math.pi / 2
+    while angle >= 0:
+        c = math.cos( angle )
+        s = math.sin( angle )
+
+        r = radius
+        while r < endRadius:
+            cb( int( c * r ) + x0, int( s * r ) + y0 )
+            cb( int( s * r ) + x0, int( c * r ) + y0 )
+            cb(-int( c * r ) + x0, int( s * r ) + y0 )
+            cb(-int( s * r ) + x0, int( c * r ) + y0 )
+            cb( int( c * r ) + x0,-int( s * r ) + y0 )
+            cb( int( s * r ) + x0,-int( c * r ) + y0 )
+            cb(-int( c * r ) + x0,-int( s * r ) + y0 )
+            cb(-int( s * r ) + x0,-int( c * r ) + y0 )
+
+            r += 0.5
+
+        angle -= stepSize
+
+def line(x0, y0, x1, y1, cb):
+    def starCb( x, y ):
+        cb( x, y )
+        cb( x - 1, y )
+        cb( x + 1, y )
+        cb( x, y - 1 )
+        cb( x, y + 1 )
+
+    "Bresenham's line algorithm"
+    dx = abs(x1 - x0)
+    dy = abs(y1 - y0)
+    x, y = x0, y0
+    sx = -1 if x0 > x1 else 1
+    sy = -1 if y0 > y1 else 1
+    if dx > dy:
+        err = dx / 2.0
+        while x != x1:
+            starCb(x, y)
+            err -= dy
+            if err < 0:
+                y += sy
+                err += dx
+            x += sx
+    else:
+        err = dy / 2.0
+        while y != y1:
+            starCb(x, y)
+            err -= dx
+            if err < 0:
+                x += sx
+                err += dy
+            y += sy
+    starCb(x, y)
+
+
+def buildFixedWalls( self, I, _buffer, val ):
+    #Clear center room
+    centerX = int( self.width / 2 )
+    centerY = int( self.height / 2 )
+
+    for x in range( centerX - centerRoomSize[0] - 1, centerX + centerRoomSize[0] + 1 ):
+        for y in range( centerY - centerRoomSize[1] - 1, centerY + centerRoomSize[1] + 1 ):
+            _buffer[ I( x, y ) ] = 0
+
+    #Build center room walls
+    for x in range( centerX - centerRoomSize[0] - 1, centerX + centerRoomSize[0] + 1 ):
+        _buffer[ I( x, centerY - centerRoomSize[1] - 1 ) ] = val
+        _buffer[ I( x, centerY + centerRoomSize[1] ) ] = val
+    for y in range( centerY - centerRoomSize[1] - 1, centerY + centerRoomSize[1] + 1 ):
+        _buffer[ I( centerX - centerRoomSize[0] - 1, y ) ] = val
+        _buffer[ I( centerX + centerRoomSize[0], y ) ] = val
+
 def preIterInit( self, I, _buffer ):
+    #Outer wall
     for x in range( self.width ):
         _buffer[ I( x, 0 ) ] = 1
         _buffer[ I( x, self.height - 1 ) ] = 1
@@ -22,6 +100,7 @@ def preIterInit( self, I, _buffer ):
         _buffer[ I( 0, y ) ] = 1
         _buffer[ I( self.width - 1, y ) ] = 1
 
+    #Area around outer wall
     for x in range( 1, self.width- 1  ):
         _buffer[ I( x, 1 ) ] = 0
         _buffer[ I( x, self.height - 2 ) ] = 0
@@ -29,11 +108,17 @@ def preIterInit( self, I, _buffer ):
         _buffer[ I( 1, y ) ] = 0
         _buffer[ I( self.width - 2, y ) ] = 0
 
+    buildFixedWalls( self, I, _buffer, 1 )
+
+
 def postInit( self, I, _buffer ):
+    centerX = int( self.width / 2 )
+    centerY = int( self.height / 2 )
+
     for x in range( self.width ):
         for y in range( self.height ):
             i = I( x, y )
-            val = _buffer[ i ] 
+            val = _buffer[ i ]
 
             if val == 0:
                 _buffer[ i ] = TILE_AIR #NOOP, but for clarity
@@ -49,19 +134,33 @@ def postInit( self, I, _buffer ):
         _buffer[ I( 0, y ) ] = TILE_FIXED_WALL
         _buffer[ I( self.width - 1, y ) ] = TILE_FIXED_WALL
 
-    #Clear center room
-    centerX = int( self.width / 2 )
-    centerY = int( self.height / 2 )
+    buildFixedWalls( self, I, _buffer, TILE_FIXED_WALL )
 
-    centerRoomSize = ( 5, 5 )
-    for x in range( centerX - centerRoomSize[0] - 1, centerX + centerRoomSize[0] + 1 ):
-        for y in range( centerY - centerRoomSize[1] - 1, centerY + centerRoomSize[1] + 1 ):
-            _buffer[ I( x, y ) ] = TILE_AIR
+    curSurface = ( centerRoomSize[0] * 2 ) * ( centerRoomSize[1] * 2 )
 
-    #Build center room walls
-    for x in range( centerX - centerRoomSize[0] - 1, centerX + centerRoomSize[0] + 1 ):
-        _buffer[ I( x, centerY - centerRoomSize[1] - 1 ) ] = TILE_FIXED_WALL
-        _buffer[ I( x, centerY + centerRoomSize[1] ) ] = TILE_FIXED_WALL
-    for y in range( centerY - centerRoomSize[1] - 1, centerY + centerRoomSize[1] + 1 ):
-        _buffer[ I( centerX - centerRoomSize[0] - 1, y ) ] = TILE_FIXED_WALL
-        _buffer[ I( centerX + centerRoomSize[0], y ) ] = TILE_FIXED_WALL
+    sectionSurface = 50 * 50
+    curRadius = -1
+
+    def circleCallback( x, y ):
+        _buffer[ I( int( x ), int( y ) ) ] = TILE_FIXED_WALL
+
+    circleNum = 0
+    while curRadius < 200:
+        sectionCount = max( circleNum * 2, 1 )
+        nextSurface = curSurface + ( sectionSurface * sectionCount )
+
+        nextRadius = int( math.sqrt( nextSurface / math.pi ) )
+        circle( centerX, centerY, nextRadius, nextRadius + 2, circleCallback )
+
+        #Seperate sections in circle
+        if sectionCount > 1:
+            for i in range( sectionCount ):
+                s = math.sin( i * math.pi * 2 / sectionCount )
+                c = math.cos( i * math.pi * 2 / sectionCount )
+
+                line( int( s * curRadius ) + centerX, int( c * curRadius ) + centerY, int( s * nextRadius ) + centerX, int( c * nextRadius ) + centerY, circleCallback )
+
+
+        curRadius = nextRadius
+        curSurface = int( curRadius ** 2 * math.pi )
+        circleNum += 1
