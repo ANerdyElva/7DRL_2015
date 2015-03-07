@@ -58,12 +58,10 @@ def postInit( self, I, _buffer ):
         for y in range( centerY - centerRoomSize[1] - 1, centerY + centerRoomSize[1] + 1 ):
             _buffer[ I( x, y ) ] = TILE_AIR
 
-    for x in range( centerX - centerRoomSize[0] - 1, centerX + centerRoomSize[0] + 1 ):
-        _buffer[ I( x, centerY - centerRoomSize[1] - 1 ) ] = TILE_FIXED_WALL
-        _buffer[ I( x, centerY + centerRoomSize[1] + 1 ) ] = TILE_FIXED_WALL
-    for y in range( centerY - centerRoomSize[1] - 1, centerY + centerRoomSize[1] + 1 ):
-        _buffer[ I( centerX - centerRoomSize[0] - 1, y ) ] = TILE_FIXED_WALL
-        _buffer[ I( centerX + centerRoomSize[0] + 1, y ) ] = TILE_FIXED_WALL
-    
-
-
+    #TODO
+    #for x in range( centerX - centerRoomSize[0] - 1, centerX + centerRoomSize[0] + 1 ):
+    #    _buffer[ I( x, centerY - centerRoomSize[1] - 1 ) ] = TILE_FIXED_WALL
+    #    _buffer[ I( x, centerY + centerRoomSize[1] + 1 ) ] = TILE_FIXED_WALL
+    #for y in range( centerY - centerRoomSize[1] - 1, centerY + centerRoomSize[1] + 1 ):
+    #    _buffer[ I( centerX - centerRoomSize[0] - 1, y ) ] = TILE_FIXED_WALL
+    #    _buffer[ I( centerX + centerRoomSize[0] + 1, y ) ] = TILE_FIXED_WALL
