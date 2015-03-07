@@ -1,6 +1,6 @@
-import libtcodpy as tcod
 import random
 import math
+import pygame
 
 from TileTypes import *
 
@@ -72,14 +72,14 @@ class Map:
         postInit( self, I, _buffer )
         self._buffer = _buffer
 
-    def render( self ):
-        self.console = tcod.console_new( self.width, self.height )
-        #tcod.console_set_background_color( self.console, tcod.transparent )
+    def render( self, atlas ):
+        self.surface = pygame.Surface( (
+            self.width * atlas.tileSize[0],
+            self.height * atlas.tileSize[1] ) )
 
-        tcod.console_set_custom_font(b'tiles.png', tcod.FONT_LAYOUT_ASCII_INROW, 16, 16 )
-        tcod.console_map_ascii_codes_to_font( 0, 7, 0, 0 )
-        tcod.console_map_ascii_codes_to_font( 8, 4, 0, 1 )
-        tcod.console_map_ascii_codes_to_font( 16, 4, 7, 0 )
+        atlas.map_values_to_font( 0, 7, 0, 0 )
+        atlas.map_values_to_font( 8, 4, 0, 1 )
+        atlas.map_values_to_font( 16, 4, 7, 0 )
 
         for y in range( self.height ):
             for x in range( self.width ):
@@ -87,10 +87,8 @@ class Map:
                 val = self._buffer[ i ]
                 
                 if val == TILE_FIXED_WALL:
-                    tcod.console_put_char( self.console, x, y, 8, tcod.BKGND_NONE )
+                    atlas.render( 8, self.surface, x * atlas.tileSize[0], y * atlas.tileSize[1] )
                 elif val == TILE_WALL:
-                    tcod.console_put_char( self.console, x, y, 0, tcod.BKGND_NONE )
-                else:
-                    tcod.console_put_char( self.console, x, y, 16, tcod.BKGND_NONE )
-
-        #tcod.console_set_custom_font(b'data/fonts/arial10x10.png', tcod.FONT_TYPE_GREYSCALE | tcod.FONT_LAYOUT_TCOD)
+                    atlas.render( 0, self.surface, x * atlas.tileSize[0], y * atlas.tileSize[1] )
+                #else:
+                #    atlas.render( 16, self.surface, x * atlas.tileSize[0], y * atlas.tileSize[1] )
