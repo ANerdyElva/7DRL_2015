@@ -72,7 +72,7 @@ class Map:
         postInit( self, I, _buffer )
         self._buffer = _buffer
 
-    def render( self, atlas ):
+    def preRender( self, atlas ):
         self.surface = pygame.Surface( (
             self.width * atlas.tileSize[0],
             self.height * atlas.tileSize[1] ) )
@@ -92,3 +92,6 @@ class Map:
                     atlas.render( 0, self.surface, x * atlas.tileSize[0], y * atlas.tileSize[1] )
                 #else:
                 #    atlas.render( 16, self.surface, x * atlas.tileSize[0], y * atlas.tileSize[1] )
+
+    def render( self, screen, x, y ):
+        screen.blit( self.surface.subsurface( pygame.Rect( x, y, screen.get_width(), screen.get_height()  ) ), ( 0, 0 ) )
