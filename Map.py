@@ -104,7 +104,7 @@ class Map:
                 val = self._buffer[ i ]
                 _x = x * self.atlas.tileSize[1]
 
-                TileTypes[ val ].render( self.surface, _x, _y )
+                TileTypes[ val ].render( self.surface, _x, _y, x + camX, y + camY )
 
     def render( self, x, y ):
         renderX = int( x / self.atlas.tileSize[0] )

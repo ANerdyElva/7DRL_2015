@@ -16,8 +16,8 @@ tiles.map_values_to_font( 16, 7, 0, 0 )
 
 TileType( TILE_AIR, 'Air' )
 
-BaseTileType( TILE_WALL, 'Wall', tiles, 16 )
-BaseTileType( TILE_FIXED_WALL, 'Fixed wall', tiles, 8 )
+MultiTileType( TILE_WALL, 'Wall', tiles, 16, 7 )
+MultiTileType( TILE_FIXED_WALL, 'Fixed wall', tiles, 8, 4 )
 
 screen = pygame.display.set_mode( ( 1280, 960 ) )
 screenTiles = ( int( screen.get_width() / tileSize[0] ), int( screen.get_height() / tileSize[1] ) )

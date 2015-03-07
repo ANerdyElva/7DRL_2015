@@ -10,6 +10,6 @@ You've got explosives.
 
 # Made with:
 Python 3.4
-libtcod
+pygame
 
 http://opengameart.org/content/dungeon-crawl-32x32-tiles
