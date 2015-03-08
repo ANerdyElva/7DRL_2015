@@ -1,4 +1,5 @@
 import random
+import GameData
 
 from Math2D import *
 
@@ -17,9 +18,14 @@ class Position( Component ):
         self.x = x
         self.y = y
 
-    def moveTo( self, other ):
-        self.x = other.x
-        self.y = other.y
+    def moveTo( self, x, y ):
+        if GameData.Map.isPassable( x, y ):
+            self.x = x
+            self.y = y
+
+            return True
+        else:
+            return False
 
     def __str__( self ):
         return '{Position %d/%d}' % ( self.x, self.y )

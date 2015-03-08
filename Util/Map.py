@@ -30,6 +30,12 @@ class Map:
     def get( self, x, y ):
         return self._buffer[ self.I( x, y ) ]
 
+    def isPassable( self, x, y ):
+        if self.tcodMapDirty:
+            self.updateTcod()
+
+        return tcod.map_is_walkable( self.tcodMap, x, y ) or Cheats.ViewAll
+
     def isVisible( self, x, y ):
         if self.tcodMapDirty:
             self.updateTcod()
