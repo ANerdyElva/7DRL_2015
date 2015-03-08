@@ -19,6 +19,9 @@ TileType( TILE_AIR, 'Air' )
 MultiTileType( TILE_WALL, 'Wall', tiles, 16, 7 )
 MultiTileType( TILE_FIXED_WALL, 'Fixed wall', tiles, 8, 4 )
 
+pygame.init()
+
+pygame.display.set_caption( "That's okay. You've got explosives." )
 screen = pygame.display.set_mode( ( 1280, 960 ) )
 screenTiles = ( int( screen.get_width() / tileSize[0] ), int( screen.get_height() / tileSize[1] ) )
 
@@ -28,10 +31,7 @@ _map.makeMap( initializeRandom, preIterInit, postInit )
 pos = [ tileCount[0] / 2, tileCount[1] / 2 ]
 running = True
 
-pygame.init()
-
 screenTileSize = ( int( 1280 / tileSize[0] ), int( 960 / tileSize[1] ) )
-pygame.display.set_caption( "That's okay. You've got explosives." )
 
 done = False
 
