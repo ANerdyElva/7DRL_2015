@@ -17,6 +17,7 @@ class GameState:
 
         while GameData.IsGameRunning and self.IsRunning:
             start = pygame.time.get_ticks()
+            GameData.CurTime = start
             self.runFrame()
             end = pygame.time.get_ticks()
 
