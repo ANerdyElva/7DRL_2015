@@ -9,9 +9,10 @@ IsGameRunning = True
 
 #Global variables
 Map = None #Initialized in init.py
+Fonts = {}
 
 #Load the tiles and register which are being used
-MainAtlas = Util.Atlas( 'tiles.png', TileSize )
+MainAtlas = Util.Atlas( 'data/tiles.png', TileSize )
 
 MainAtlas.map_val_to_font( 0, 7, 0 )
 MainAtlas.map_values_to_font( 8, 4, 0, 1 )
