@@ -13,11 +13,14 @@ class Explosive( ECS.Component ):
 class ExplosionRenderer( ECS.Components.Renderer ):
     def __init__( self ):
         super().__init__( None, None )
-        self.frame = int( random.random() * 15 )
+        self.start = GameData.CurTime - random.random() * 150
+        self.rate = random.random() * 0.2 + 0.9
 
     def render( self, target, screenPos ):
-        GameData.ExplosiveAtlas.render( self.frame, target, *screenPos )
+        frame = int( ( GameData.CurTime - self.start ) * self.rate / 10 )
 
-        self.frame += 1
-        if self.frame >= 74:
+        if frame >= 74:
             self.entity.world.removeEntity( self.entity )
+            return
+
+        GameData.ExplosiveAtlas.render( frame, target, *screenPos )
