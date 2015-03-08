@@ -10,7 +10,7 @@ tiles/stone2_dark0.png
 tiles/stone2_dark1.png
 tiles/stone2_dark2.png
 tiles/stone2_dark3.png
-tiles/Empty.png
-tiles/Empty.png
-tiles/Empty.png
+tiles/cursor.png
+tiles/cursor_green.png
+tiles/cursor_red.png
 tiles/Empty.png
