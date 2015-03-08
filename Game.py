@@ -9,17 +9,6 @@ from GameState import GameState
 
 import ECS
 
-class Test( ECS.System ):
-    def __init__( self, world ):
-        super().__init__( world )
-
-    def clean( self ):
-        print( 'Cleaning' )
-
-    def process( self ):
-        pass
-
-
 class Game( GameState ):
     def __init__( self, screen, escapeFunc ):
         super().__init__( screen )
@@ -32,7 +21,6 @@ class Game( GameState ):
 
         self.escapeFunc = escapeFunc
         self.world = ECS.World()
-        #self.world.addSystem( Test( self.world ) )
 
     def runFrame( self ):
         self.handleInput()
@@ -53,6 +41,8 @@ class Game( GameState ):
                     nonlocal curStrength
                     if curStrength <= 0:
                         return True
+
+                    curStrength -= 1
 
                     curToughness = TileTypes[ GameData.Map.get( x, y ) ].hardness
                     if curToughness is None: #Unbreakable block
@@ -75,10 +65,10 @@ class Game( GameState ):
                 s = math.sin( i * math.pi / 2 / explosive.rayPerSquare )
                 c = math.cos( i * math.pi / 2 / explosive.rayPerSquare )
 
-                handleRay( s * 200, c * 200 )
-                handleRay( -s * 200, c * 200 )
-                handleRay( s * 200, -c * 200 )
-                handleRay( -s * 200, -c * 200 )
+                handleRay( s * 200 + 20 * random.random() - 10, c * 200 + 20 * random.random() - 10 )
+                handleRay( -s * 200 + 20 * random.random() - 10, c * 200 + 20 * random.random() - 10 )
+                handleRay( s * 200 + 20 * random.random() - 10, -c * 200 + 20 * random.random() - 10 )
+                handleRay( -s * 200 + 20 * random.random() - 10, -c * 200 + 20 * random.random() - 10 )
 
             self.world.removeEntity( ent )
 
@@ -91,9 +81,12 @@ class Game( GameState ):
                     if hasattr( tileType, 'onDestruction' ):
                         targetType = tileType.onDestruction( *tilePos )
 
-                    if targetType != 0:
-                        print( targetType )
                     GameData.Map.set( tilePos[0], tilePos[1], targetType )
+
+                    effect = ECS.Entity()
+                    effect.addComponent( ECS.Components.Position( *tilePos ) )
+                    effect.addComponent( GameComponents.ExplosionRenderer() )
+                    self.world.addEntity( effect )
 
         self.render()
 
@@ -116,7 +109,6 @@ class Game( GameState ):
                 ( self.mouseTilePos[1] - self.camY ) * GameData.TileSize[1] )
 
         pygame.display.flip()
-        self.clock.tick(60)
 
 
     def handleInput( self ):

@@ -102,7 +102,6 @@ class MainMenu( GameState ):
             offset += 1
 
         pygame.display.flip()
-        self.clock.tick(60)
 
     def startGame( self, event ):
         game = Game( self.screen, lambda event: MainMenu( self.screen, False ).run() )
