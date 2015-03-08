@@ -24,3 +24,16 @@ class ExplosionRenderer( ECS.Components.Renderer ):
             return
 
         GameData.ExplosiveAtlas.render( frame, target, *screenPos )
+
+class Character( ECS.Component ):
+    def __init__( self, baseType ):
+        self.baseType = baseType
+        self.attributes = {}
+
+        for key in self.baseType:
+            if key.startswith('base'):
+                self.attributes[ key[6:] ] = self.baseType[key]
+
+class CharacterRenderer( ECS.Components.Renderer ):
+    def __init__( self, char ):
+        super().__init__( char.baseType['spriteAtlas'], char.baseType['spriteId'] )

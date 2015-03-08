@@ -31,3 +31,6 @@ class Renderer( Component ):
 
     def render( self, target, screenPos ):
         self.atlas.render( self.renderType, target, *screenPos )
+
+    def __str__( self ):
+        return '{%s %s:%s}' % ( type( self ).__name__, self.atlas, self.renderType )

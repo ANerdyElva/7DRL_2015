@@ -5,6 +5,7 @@ from Util import *
 from MapGen import *
 
 import GameData
+import Characters
 import Cheats
 import GameComponents
 from GameState import GameState
@@ -23,6 +24,14 @@ class Game( GameState ):
 
         self.escapeFunc = escapeFunc
         self.world = ECS.World()
+
+        GameData.Player = ECS.Entity()
+        GameData.Player.addComponent( ECS.Components.Position( int( GameData.CenterPos[ 0 ] ), int( GameData.CenterPos[1] ) ) )
+        GameData.Player.addComponent( GameComponents.Character( Characters.Player ) )
+        GameData.Player.addComponent( GameComponents.CharacterRenderer( GameData.Player.getComponent( GameComponents.Character ) ) )
+
+        GameData.PlayerPosition = GameData.Player.getComponent( ECS.Components.Position )
+        self.world.addEntity( GameData.Player )
 
     def runFrame( self ):
         self.handleInput()
@@ -114,11 +123,17 @@ class Game( GameState ):
 
         pygame.display.flip()
 
+    def updateCamPos( self ):
+        #Calculate camera position
+        if Cheats.Flying:
+            self.camX = min( max( GameData.CenterPos[0] - int( self.screenTiles[0] / 2 ), 0 ), GameData.TileCount[0] - self.screenTiles[0] )
+            self.camY = min( max( GameData.CenterPos[1] - int( self.screenTiles[1] / 2 ), 0 ), GameData.TileCount[1] - self.screenTiles[1] )
+        else:
+            self.camX = min( max( GameData.PlayerPosition.x - int( self.screenTiles[0] / 2 ), 0 ), GameData.TileCount[0] - self.screenTiles[0] )
+            self.camY = min( max( GameData.PlayerPosition.y - int( self.screenTiles[1] / 2 ), 0 ), GameData.TileCount[1] - self.screenTiles[1] )
 
     def handleInput( self ):
-        #Calculate camera position
-        self.camX = min( max( GameData.CenterPos[0] - int( self.screenTiles[0] / 2 ), 0 ), GameData.TileCount[0] - self.screenTiles[0] )
-        self.camY = min( max( GameData.CenterPos[1] - int( self.screenTiles[1] / 2 ), 0 ), GameData.TileCount[1] - self.screenTiles[1] )
+        self.updateCamPos()
 
         #Calculate mouse tile
         self.mousePos = pygame.mouse.get_pos()
@@ -140,16 +155,29 @@ class Game( GameState ):
                 if event.key == pygame.K_F2:
                     Cheats.ViewAll = not Cheats.ViewAll
                     GameData.Map.renderDirty = True
+                elif event.key == pygame.K_F3:
+                    Cheats.Flying = not Cheats.Flying
+                elif event.key == pygame.K_w:
+                    GameData.Player.getComponent( ECS.Components.Position ).y -= 1
+                elif event.key == pygame.K_s:
+                    GameData.Player.getComponent( ECS.Components.Position ).y += 1
+                elif event.key == pygame.K_a:
+                    GameData.Player.getComponent( ECS.Components.Position ).x -= 1
+                elif event.key == pygame.K_d:
+                    GameData.Player.getComponent( ECS.Components.Position ).x += 1
 
-        curKeys = pygame.key.get_pressed()
-        if curKeys[pygame.K_w]:
-            GameData.CenterPos[1] -= 1
-        if curKeys[pygame.K_s]:
-            GameData.CenterPos[1] += 1
-        if curKeys[pygame.K_a]:
-            GameData.CenterPos[0] -= 1
-        if curKeys[pygame.K_d]:
-            GameData.CenterPos[0] += 1
+        if Cheats.Flying:
+            curKeys = pygame.key.get_pressed()
+            if curKeys[pygame.K_w]:
+                GameData.CenterPos[1] -= 1
+            if curKeys[pygame.K_s]:
+                GameData.CenterPos[1] += 1
+            if curKeys[pygame.K_a]:
+                GameData.CenterPos[0] -= 1
+            if curKeys[pygame.K_d]:
+                GameData.CenterPos[0] += 1
+
+        self.updateCamPos()
 
     def quit( self, event ):
         if self.escapeFunc( event ):
