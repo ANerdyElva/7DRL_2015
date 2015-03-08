@@ -10,7 +10,7 @@ TILE_DOOR_OPEN = 21
 TileTypes = {}
 
 class TileType:
-    def __init__( self, typeId, name ):
+    def __init__( self, typeId, name, **kargs ):
         self.typeId = typeId
         self.name = name
 
@@ -19,12 +19,21 @@ class TileType:
 
         TileTypes[ self.typeId ] = self
 
+        for k in kargs:
+            v = kargs[k]
+            setattr( self, k, v )
+
     def render( self, target, x, y, worldX, worldY ):
         pass
 
+    hardness = None
+
+    def __str__( self ):
+        return "{%d: %s}" % ( self.typeId, self.name )
+
 class BaseTileType( TileType ):
-    def __init__( self, typeId, name, atlas, atlasIndex ):
-        super().__init__( typeId, name )
+    def __init__( self, typeId, name, atlas, atlasIndex, **kargs ):
+        super().__init__( typeId, name, **kargs )
         self.atlas = atlas
         self.atlasIndex = atlasIndex
 
@@ -38,8 +47,8 @@ def bsd_rand(seed):
     return seed
 
 class MultiTileType( BaseTileType ):
-    def __init__( self, typeId, name, atlas, atlasIndex, atlasEnd ):
-        super().__init__( typeId, name, atlas, atlasIndex )
+    def __init__( self, typeId, name, atlas, atlasIndex, atlasEnd, **kargs ):
+        super().__init__( typeId, name, atlas, atlasIndex, **kargs )
         self.atlasEnd = atlasEnd
 
     def render( self, target, x, y, worldX, worldY ):
