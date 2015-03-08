@@ -1,5 +1,6 @@
 import Util
 import random
+import pygame
 
 #Global definitions
 TileSize = ( 32, 32 )
@@ -9,6 +10,7 @@ CenterPos = [ TileCount[0] / 2, TileCount[1] / 2 ]
 IsGameRunning = True
 
 #Global variables
+Screen = None
 Map = None #Initialized in init.py
 Player = None
 Fonts = {}
@@ -30,6 +32,19 @@ Entities.map_val_to_font( 'tnt', 0, 0 )
 
 ExplosiveAtlas = Util.Atlas( 'data/explosion.png', TileSize )
 ExplosiveAtlas.map_values_to_font( 0, 74, 0, 0 )
+
+#Load the large images
+MenuBackground = None
+Fog = None
+
+def update():
+    global Screen
+    global MenuBackground
+    global Fog
+
+    MenuBackground = pygame.transform.smoothscale( pygame.image.load( 'data/parchment_1.png' ), ( Screen.get_width(), Screen.get_height() ) )
+    Fog = pygame.transform.smoothscale( pygame.image.load( 'data/fog.png' ), ( Screen.get_width(), Screen.get_height() ) )
+    Fog.set_alpha( 60 )
 
 #Build the TileTypes, no need to register them, that's handled in their constructor.
 Util.TileType( Util.TILE_AIR, 'Air', hardness = 0.5, passable = True, viewThrough = True )
