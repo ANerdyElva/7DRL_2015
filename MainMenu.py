@@ -1,6 +1,8 @@
 import pygame
 import GameData
 
+import Cheats
+
 from GameState import GameState
 from Game import Game
 import Util
@@ -8,10 +10,7 @@ import Util
 class MainMenu( GameState ):
     def __init__( self, screen, isMain = True ):
         super().__init__( screen )
-        self.background = pygame.transform.smoothscale(
-                pygame.image.load( 'data/parchment_1.png' ),
-                ( self.screen.get_width(), self.screen.get_height() ) )
-
+        self.background = GameData.MenuBackground
         self.isMain = isMain
 
         self.lines = []
@@ -58,7 +57,7 @@ class MainMenu( GameState ):
                 if self.activeMenu is not None:
                     self.activeMenu[1]( event )
 
-        if pygame.time.get_ticks() > 250 and self.isMain:
+        if Cheats.StartGame and self.isMain:
             self.startGame( None )
 
         self.render()

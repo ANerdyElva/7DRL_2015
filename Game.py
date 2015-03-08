@@ -102,8 +102,10 @@ class Game( GameState ):
         #Render entities
         for ent in self.world.getEntityByComponent( ECS.Components.Position, ECS.Components.Renderer ):
             pos = ent.getComponent( ECS.Components.Position )
-            pos = ( ( pos.x - self.camX ) * GameData.TileSize[0], ( pos.y - self.camY ) * GameData.TileSize[1] )
-            ent.getComponent( ECS.Components.Renderer ).render( self.screen, pos )
+
+            if GameData.Map.isVisible( pos.x, pos.y ):
+                pos = ( ( pos.x - self.camX ) * GameData.TileSize[0], ( pos.y - self.camY ) * GameData.TileSize[1] )
+                ent.getComponent( ECS.Components.Renderer ).render( self.screen, pos )
 
         #Render cursor
         GameData.MainAtlas.render( 'cursor', self.screen,

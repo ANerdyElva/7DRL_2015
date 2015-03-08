@@ -8,6 +8,7 @@ import ECS
 from Util import TileTypes
 
 import Cheats
+import GameData
 
 class Map:
     def __init__( self, width, height, tiles, screen, fovUpdater ):
@@ -28,6 +29,13 @@ class Map:
 
     def get( self, x, y ):
         return self._buffer[ self.I( x, y ) ]
+
+    def isVisible( self, x, y ):
+        if self.tcodMapDirty:
+            self.updateTcod()
+
+        return tcod.map_is_in_fov( self.tcodMap, x, y ) or Cheats.ViewAll
+
 
     def set( self, x, y, val ):
         self._buffer[ self.I( x, y ) ] = val
@@ -105,12 +113,13 @@ class Map:
                  tileCount[0] * self.atlas.tileSize[0],
                  tileCount[1] * self.atlas.tileSize[1]
                  ) )
+
             self.visibleSurface = pygame.Surface( (
                  tileCount[0] * self.atlas.tileSize[0],
                  tileCount[1] * self.atlas.tileSize[1]
                  ) )
 
-            self.surface.set_alpha( 60 )
+            self.surface.set_alpha( 100 )
             self.visibleSurface.set_colorkey( ( 254, 0, 254 ) )
 
         self.surface.fill( ( 0, 0, 0 ) )
@@ -136,8 +145,6 @@ class Map:
     def updateTcod( self ):
         self.tcodMap = tcod.map_new( self.width, self.height )
         self.tcodMapDirty = False
-
-        print( 'Updating tcod' )
 
         i = 0
         for y in range( 0, self.height ):
@@ -165,4 +172,5 @@ class Map:
 
         rect = pygame.Rect( x % self.atlas.tileSize[0], y % self.atlas.tileSize[1], self.target.get_width(), self.target.get_height() )
         self.target.blit( self.surface.subsurface( rect ), ( 0, 0 ) )
+        self.target.blit( GameData.Fog, ( 0, 0 ) )
         self.target.blit( self.visibleSurface.subsurface( rect ), ( 0, 0 ) )
