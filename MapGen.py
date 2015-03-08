@@ -1,7 +1,7 @@
 import math
 import random
 
-from TileTypes import *
+from Util.TileTypes import *
 
 centerRoomSize = ( 5, 5 )
 

@@ -2,7 +2,7 @@ import random
 import math
 import pygame
 
-from TileTypes import *
+from Util import TileTypes
 
 class Map:
     def __init__( self, width, height, tiles, screen ):
