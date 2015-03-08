@@ -19,6 +19,9 @@ class Map:
 
     def get( self, x, y ):
         return self._buffer[ self.I( x, y ) ]
+    def set( self, x, y, val ):
+        self._buffer[ self.I( x, y ) ] = val
+        self.renderDirty = True
 
     def makeMap( self, getVal, preIterInit, postInit ):
         I = lambda x, y: x + y * self.width
@@ -110,6 +113,7 @@ class Map:
         renderX = int( x / self.atlas.tileSize[0] )
         renderY = int( y / self.atlas.tileSize[1] )
         if ( self.renderDirty or renderX != self.lastRenderX or renderY != self.lastRenderY ):
+            print( 'Rendering.' )
             self.renderDirty = False
             self.lastRenderX = renderX
             self.lastRenderY = renderY

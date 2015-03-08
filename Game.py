@@ -39,6 +39,62 @@ class Game( GameState ):
 
         self.world.process()
 
+        hitTiles = {}
+        for ent in self.world.getEntityByComponent( ECS.Components.Position, GameComponents.Explosive ):
+            pos = ent.getComponent( ECS.Components.Position )
+            pos = ( pos.x, pos.y )
+
+            explosive = ent.getComponent( GameComponents.Explosive )
+
+            def handleRay( targetX, targetY ):
+                curStrength = explosive.strength
+
+                def handleBlock( x, y ):
+                    nonlocal curStrength
+                    if curStrength <= 0:
+                        return True
+
+                    curToughness = TileTypes[ GameData.Map.get( x, y ) ].hardness
+                    if curToughness is None: #Unbreakable block
+                        return True
+
+                    if ( x, y ) in hitTiles:
+                        curToughness = hitTiles[ ( x, y ) ]
+                    else:
+                        hitTiles[ ( x, y ) ] = curToughness
+
+                    if curStrength > curToughness:
+                        hitTiles[ ( x, y ) ] = 0
+                        curStrength -= curToughness
+                    else:
+                        hitTiles[ ( x, y ) ] = curToughness - curStrength
+
+                Line( pos[0], pos[1], int( pos[0] + targetX ), int( pos[1] + targetY ), handleBlock )
+
+            for i in range( explosive.rayPerSquare ):
+                s = math.sin( i * math.pi / 2 / explosive.rayPerSquare )
+                c = math.cos( i * math.pi / 2 / explosive.rayPerSquare )
+
+                handleRay( s * 200, c * 200 )
+                handleRay( -s * 200, c * 200 )
+                handleRay( s * 200, -c * 200 )
+                handleRay( -s * 200, -c * 200 )
+
+            self.world.removeEntity( ent )
+
+        if len( hitTiles ) > 0:
+            for tilePos in hitTiles:
+                if hitTiles[ tilePos ] == 0:
+                    tileType = TileTypes[ GameData.Map.get( tilePos[0], tilePos[1] ) ]
+                    targetType = TILE_AIR
+
+                    if hasattr( tileType, 'onDestruction' ):
+                        targetType = tileType.onDestruction( *tilePos )
+
+                    if targetType != 0:
+                        print( targetType )
+                    GameData.Map.set( tilePos[0], tilePos[1], targetType )
+
         self.render()
 
     def render( self ):
@@ -81,7 +137,7 @@ class Game( GameState ):
             elif event.type == pygame.MOUSEBUTTONUP:
                 explosive = ECS.Entity()
                 explosive.addComponent( ECS.Components.Position( *self.mouseTilePos ) )
-                explosive.addComponent( GameComponents.Explosive( 50 ) )
+                explosive.addComponent( GameComponents.Explosive( 32, 6.25 ) )
                 explosive.addComponent( ECS.Components.Renderer( GameData.Entities, 'tnt' ) )
                 self.world.addEntity( explosive )
 

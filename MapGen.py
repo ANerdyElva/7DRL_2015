@@ -2,6 +2,7 @@ import math
 import random
 
 from Util.TileTypes import *
+from Util import Line, StarCallback
 
 centerRoomSize = ( 5, 5 )
 
@@ -38,40 +39,6 @@ def circle(x0, y0, radius, endRadius, cb):
             r += 0.5
 
         angle -= stepSize
-
-def line(x0, y0, x1, y1, cb):
-    def starCb( x, y ):
-        cb( x, y )
-        cb( x - 1, y )
-        cb( x + 1, y )
-        cb( x, y - 1 )
-        cb( x, y + 1 )
-
-    "Bresenham's line algorithm"
-    dx = abs(x1 - x0)
-    dy = abs(y1 - y0)
-    x, y = x0, y0
-    sx = -1 if x0 > x1 else 1
-    sy = -1 if y0 > y1 else 1
-    if dx > dy:
-        err = dx / 2.0
-        while x != x1:
-            starCb(x, y)
-            err -= dy
-            if err < 0:
-                y += sy
-                err += dx
-            x += sx
-    else:
-        err = dy / 2.0
-        while y != y1:
-            starCb(x, y)
-            err -= dx
-            if err < 0:
-                x += sx
-                err += dy
-            y += sy
-    starCb(x, y)
 
 
 def buildFixedWalls( self, I, _buffer, val ):
@@ -141,7 +108,7 @@ def postInit( self, I, _buffer ):
     sectionSurface = 50 * 50
     curRadius = -1
 
-    def circleCallback( x, y ):
+    def setFixedWall( x, y ):
         _buffer[ I( int( x ), int( y ) ) ] = TILE_FIXED_WALL
 
     circleNum = 0
@@ -150,7 +117,7 @@ def postInit( self, I, _buffer ):
         nextSurface = curSurface + ( sectionSurface * sectionCount )
 
         nextRadius = int( math.sqrt( nextSurface / math.pi ) )
-        circle( centerX, centerY, nextRadius, nextRadius + 2, circleCallback )
+        circle( centerX, centerY, nextRadius, nextRadius + 2, setFixedWall )
 
         #Seperate sections in circle
         if sectionCount > 1:
@@ -159,7 +126,7 @@ def postInit( self, I, _buffer ):
                 s = math.sin( angle )
                 c = math.cos( angle )
 
-                line( int( s * ( curRadius + 1 ) ) + centerX, int( c * ( curRadius + 1 ) ) + centerY, int( s * nextRadius ) + centerX, int( c * nextRadius ) + centerY, circleCallback )
+                Line( int( s * ( curRadius + 1 ) ) + centerX, int( c * ( curRadius + 1 ) ) + centerY, int( s * nextRadius ) + centerX, int( c * nextRadius ) + centerY, StarCallback( setFixedWall ) )
 
 
         curRadius = nextRadius

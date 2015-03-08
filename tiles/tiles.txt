@@ -13,4 +13,4 @@ tiles/stone2_dark3.png
 tiles/cursor.png
 tiles/cursor_green.png
 tiles/cursor_red.png
-tiles/Empty.png
+tiles/rubble.png
