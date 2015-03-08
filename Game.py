@@ -158,13 +158,13 @@ class Game( GameState ):
                 elif event.key == pygame.K_F3:
                     Cheats.Flying = not Cheats.Flying
                 elif event.key == pygame.K_w:
-                    GameData.Player.getComponent( ECS.Components.Position ).y -= 1
+                    GameData.PlayerPosition.moveTo( GameData.PlayerPosition.x, GameData.PlayerPosition.y - 1 )
                 elif event.key == pygame.K_s:
-                    GameData.Player.getComponent( ECS.Components.Position ).y += 1
+                    GameData.PlayerPosition.moveTo( GameData.PlayerPosition.x, GameData.PlayerPosition.y + 1 )
                 elif event.key == pygame.K_a:
-                    GameData.Player.getComponent( ECS.Components.Position ).x -= 1
+                    GameData.PlayerPosition.moveTo( GameData.PlayerPosition.x - 1, GameData.PlayerPosition.y )
                 elif event.key == pygame.K_d:
-                    GameData.Player.getComponent( ECS.Components.Position ).x += 1
+                    GameData.PlayerPosition.moveTo( GameData.PlayerPosition.x + 1, GameData.PlayerPosition.y )
 
         if Cheats.Flying:
             curKeys = pygame.key.get_pressed()
