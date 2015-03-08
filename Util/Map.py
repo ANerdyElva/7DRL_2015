@@ -14,6 +14,7 @@ class Map:
         self.width = width
         self.height = height
         self.surface = None
+        self.visibleSurface = None
 
         self.renderDirty = True
         self.tcodMapDirty = True
@@ -104,8 +105,16 @@ class Map:
                  tileCount[0] * self.atlas.tileSize[0],
                  tileCount[1] * self.atlas.tileSize[1]
                  ) )
+            self.visibleSurface = pygame.Surface( (
+                 tileCount[0] * self.atlas.tileSize[0],
+                 tileCount[1] * self.atlas.tileSize[1]
+                 ) )
+
+            self.surface.set_alpha( 60 )
+            self.visibleSurface.set_colorkey( ( 254, 0, 254 ) )
 
         self.surface.fill( ( 0, 0, 0 ) )
+        self.visibleSurface.fill( ( 254, 0, 254 ) )
 
         for y in range( tileCount[1] ):
             _y = y * self.atlas.tileSize[1]
@@ -121,8 +130,8 @@ class Map:
                 val = self._buffer[ i ]
                 _x = x * self.atlas.tileSize[1]
 
-                if tcod.map_is_in_fov( self.tcodMap, x + camX, y + camY ) or Cheats.ViewAll:
-                    TileTypes[ val ].render( self.surface, _x, _y, x + camX, y + camY )
+                visible = tcod.map_is_in_fov( self.tcodMap, x + camX, y + camY ) or Cheats.ViewAll
+                TileTypes[ val ].render( ( self.visibleSurface if visible else self.surface ), _x, _y, x + camX, y + camY )
 
     def updateTcod( self ):
         self.tcodMap = tcod.map_new( self.width, self.height )
@@ -156,3 +165,4 @@ class Map:
 
         rect = pygame.Rect( x % self.atlas.tileSize[0], y % self.atlas.tileSize[1], self.target.get_width(), self.target.get_height() )
         self.target.blit( self.surface.subsurface( rect ), ( 0, 0 ) )
+        self.target.blit( self.visibleSurface.subsurface( rect ), ( 0, 0 ) )
