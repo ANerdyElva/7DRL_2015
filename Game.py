@@ -7,7 +7,7 @@ import GameData
 from GameState import GameState
 
 class Game( GameState ):
-    def __init__( self, screen ):
+    def __init__( self, screen, escapeFunc ):
         super().__init__( screen )
 
         ###########################################################
@@ -15,6 +15,8 @@ class Game( GameState ):
         ###########################################################
         GameData.Map = Map( GameData.TileCount[0], GameData.TileCount[1], GameData.MainAtlas, self.screen )
         GameData.Map.makeMap( initializeRandom, preIterInit, postInit )
+
+        self.escapeFunc = escapeFunc
 
     def runFrame( self ):
         self.handleInput()
@@ -60,3 +62,7 @@ class Game( GameState ):
             GameData.CenterPos[0] -= 1
         if curKeys[pygame.K_d]:
             GameData.CenterPos[0] += 1
+
+    def quit( self, event ):
+        if self.escapeFunc( event ):
+            self.IsRunning = False

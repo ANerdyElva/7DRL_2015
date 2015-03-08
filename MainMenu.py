@@ -18,13 +18,15 @@ class MainMenu( GameState ):
         if isMain:
             self.lines.append( [ 'Start game', lambda event: self.startGame( event ) ] )
         else:
-            self.lines.append( [ 'Back to game', lambda event: self.resumegame( event ) ] )
+            self.lines.append( [ 'Back to game', lambda event: self.resumeGame( event ) ] )
 
         self.lines.append( tuple( ) )
         self.lines.append( tuple( ) )
         self.lines.append( tuple( ) )
 
-        self.lines.append( [ 'Quit', lambda event: self.quit( event ) ] )
+        if not isMain:
+            self.lines.append( [ 'Quit to main manu', lambda event: self.quitToMain( event ) ] )
+        self.lines.append( [ 'Quit to desktop', lambda event: self.quit( event ) ] )
 
         self.fontLarge = Util.LoadFont( 'MenuLarge', 'data/segoesc.ttf', 28 )
         self.fontSmall = Util.LoadFont( 'MenuNormal', 'data/segoesc.ttf', 20 )
@@ -40,7 +42,7 @@ class MainMenu( GameState ):
                 line.append( font1 ) #2
                 line.append( font2 ) #3
                 line.append( pygame.Rect( 80, 354 + offset, font1.get_width(), font1.get_height() ) ) #4
-            offset += 20
+            offset += 26
 
 
     def runFrame( self ):
@@ -84,10 +86,10 @@ class MainMenu( GameState ):
         def h( large, small ):
             return 80 + large * 39 + small * 20
         self.renderCentered( self.fontLarge, 'You are in a maze of twisty passages,', ( self.screen.get_width() / 2, h( 0, 0 ) ), ( 50, 50, 50 ) )
-        timedRender( "All alike.", ( self.screen.get_width() / 2, h( 1, 0 ) ), 750 )
-        timedRender( "You see no way out.", ( self.screen.get_width() / 2, h( 2, 1 ) ), 1500 )
-        timedRender( "But that's okay.", ( self.screen.get_width() / 2, h( 3, 2 ) ), 2250 )
-        timedRender( "You've got explosives.", ( self.screen.get_width() / 2, h( 4, 2 ) ), 3250 )
+        timedRender( "All alike.", ( self.screen.get_width() / 2, h( 1, 0 ) ), 1500 )
+        timedRender( "You see no way out.", ( self.screen.get_width() / 2, h( 2, 1 ) ), 3000 )
+        timedRender( "But that's okay.", ( self.screen.get_width() / 2, h( 3, 2 ) ), 4500 )
+        timedRender( "You've got explosives.", ( self.screen.get_width() / 2, h( 4, 2 ) ), 6500 )
         
         offset = 0
         for line in self.lines:
@@ -100,11 +102,18 @@ class MainMenu( GameState ):
         self.clock.tick(60)
 
     def startGame( self, event ):
-        game = Game( self.screen )
+        game = Game( self.screen, lambda event: MainMenu( self.screen, False ).run() )
         game.run()
 
     def resumeGame( self, event ):
         self.IsRunning = False
 
     def quit( self, event ):
-        GameData.IsGameRunning = False
+        if self.isMain:
+            self.IsRunning = False
+        else:
+            GameData.IsGameRunning = False
+
+    def quitToMain( self, event ):
+        self.IsRunning = False
+        self.RetVal = True

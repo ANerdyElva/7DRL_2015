@@ -10,15 +10,21 @@ class GameState:
         
         self.clock = pygame.time.Clock()
         self.IsRunning = True
+        self.RetVal = None
 
     def run( self ):
         while GameData.IsGameRunning and self.IsRunning:
             self.runFrame()
 
+        return self.RetVal
+
+    def quit( self, event ):
+        GameData.IsGameRunning = False
+
     def handle( self, event ):
         if event.type == pygame.QUIT or ( event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE ):
-            GameData.IsGameRunning = False
+            self.quit( event )
+        else:
+            return False
 
-            return True
-
-        return False
+        return True
