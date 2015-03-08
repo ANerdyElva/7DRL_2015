@@ -94,7 +94,7 @@ class Game( GameState ):
 
     def render( self ):
         #Game drawing
-        self.screen.fill( ( 255, 255, 255 ) )
+        self.screen.fill( ( 0, 0, 0 ) )
 
         #Render map
         GameData.Map.render( self.camX * GameData.TileSize[0], self.camY * GameData.TileSize[1] )
