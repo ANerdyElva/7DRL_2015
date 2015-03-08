@@ -27,6 +27,9 @@ Entities = Util.Atlas( 'data/entity.png', TileSize )
 
 Entities.map_val_to_font( 'tnt', 0, 0 )
 
+ExplosiveAtlas = Util.Atlas( 'data/explosion.png', TileSize )
+ExplosiveAtlas.map_values_to_font( 0, 74, 0, 0 )
+
 #Build the TileTypes, no need to register them, that's handled in their constructor.
 Util.TileType( Util.TILE_AIR, 'Air', hardness = 0.5 )
 

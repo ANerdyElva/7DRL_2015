@@ -30,4 +30,4 @@ class Renderer( Component ):
         self.renderType = renderType
 
     def render( self, target, screenPos ):
-        self.atlas.render( self.renderType, target, screenPos[0], screenPos[1] )
+        self.atlas.render( self.renderType, target, *screenPos )

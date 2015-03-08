@@ -13,8 +13,17 @@ class GameState:
         self.RetVal = None
 
     def run( self ):
+        average = 0
+
         while GameData.IsGameRunning and self.IsRunning:
+            start = pygame.time.get_ticks()
             self.runFrame()
+            end = pygame.time.get_ticks()
+
+            average = ( average * 4  + ( end - start ) ) / 5
+
+            pygame.display.set_caption( "That's okay. You've got explosions. [%s] [%d]" % ( self.__class__.__name__, 1000.0 / average ) )
+            self.clock.tick( 60 )
 
         return self.RetVal
 
