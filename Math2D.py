@@ -53,6 +53,18 @@ class Point():
 
         return Point( self.x * l, self.y * l )
 
+    def __iter__( self ):
+        return ( self.x, self.y )
+
+    def __getitem__( self, n ):
+        if n == 0:
+            return self.x
+        elif n == 1:
+            return self.y
+        else:
+            return None
+
+
     @property
     def squaredLength( self ):
         return self.x ** 2 + self.y ** 2

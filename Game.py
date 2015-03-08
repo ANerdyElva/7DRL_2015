@@ -4,13 +4,15 @@ import libtcodpy as tcod
 from Util import *
 from MapGen import *
 
-import GameData
+from ActionSystem import ActionSystem
+import Actions
 import Characters
 import Cheats
+import ECS
 import GameComponents
+import GameData
 from GameState import GameState
 
-import ECS
 
 class Game( GameState ):
     def __init__( self, screen, escapeFunc ):
@@ -24,26 +26,46 @@ class Game( GameState ):
 
         self.escapeFunc = escapeFunc
         self.world = ECS.World()
+        self.actionSystem = ActionSystem( self.world, Actions.ActionMap )
+        self.world.addSystem( self.actionSystem )
+
+        self.playerAction = None
+        def playerAction( __, _, wasBlocked ):
+            ret = self.playerAction
+            self.playerAction = None
+            return ret
 
         GameData.Player = ECS.Entity()
         GameData.Player.addComponent( ECS.Components.Position( int( GameData.CenterPos[ 0 ] ), int( GameData.CenterPos[1] ) ) )
         GameData.Player.addComponent( GameComponents.Character( Characters.Player ) )
         GameData.Player.addComponent( GameComponents.CharacterRenderer( GameData.Player.getComponent( GameComponents.Character ) ) )
+        GameData.Player.addComponent( GameComponents.TurnTaker( playerAction ) )
+
 
         GameData.PlayerPosition = GameData.Player.getComponent( ECS.Components.Position )
         self.world.addEntity( GameData.Player )
 
-    def runFrame( self ):
-        self.handleInput()
+        for i in range( 5 ):
+            choice = random.choice( Characters.SpawnList['normal'] )
 
-        self.world.process()
+            enemy = ECS.Entity()
+            enemyChar = GameComponents.Character( choice )
+            enemy.addComponent( ECS.Components.Position( int( random.random() * 10 - 5 + GameData.TileCount[0] / 2 ), int( random.random() * 10 - 5 + GameData.TileCount[1] / 2 ) ) )
+            enemy.addComponent( enemyChar )
+            enemy.addComponent( GameComponents.CharacterRenderer( enemyChar ) )
+            enemy.addComponent( GameComponents.TurnTaker( ai = GameComponents.TurnTakerAi() ) )
+            self.world.addEntity( enemy )
 
+    def handleExplosions( self, explosionList ):
         hitTiles = {}
-        for ent in self.world.getEntityByComponent( ECS.Components.Position, GameComponents.Explosive ):
+
+        for ent in explosionList:
+            explosive = ent.getComponent( GameComponents.Explosive )
+            if not explosive.isFiring:
+                continue
+
             pos = ent.getComponent( ECS.Components.Position )
             pos = ( pos.x, pos.y )
-
-            explosive = ent.getComponent( GameComponents.Explosive )
 
             def handleRay( targetX, targetY ):
                 curStrength = explosive.strength
@@ -99,6 +121,16 @@ class Game( GameState ):
                     effect.addComponent( GameComponents.ExplosionRenderer() )
                     self.world.addEntity( effect )
 
+
+    def runFrame( self ):
+        self.handleInput()
+
+        if self.playerAction is not None:
+            self.actionSystem.process( 500 )
+        self.handleExplosions( self.world.getEntityByComponent( ECS.Components.Position, GameComponents.Explosive ) )
+        self.world.process()
+
+        self.updateCamPos()
         self.render()
 
     def render( self ):
@@ -158,13 +190,18 @@ class Game( GameState ):
                 elif event.key == pygame.K_F3:
                     Cheats.Flying = not Cheats.Flying
                 elif event.key == pygame.K_w:
-                    GameData.PlayerPosition.moveTo( GameData.PlayerPosition.x, GameData.PlayerPosition.y - 1 )
+                    self.playerAction = GameComponents.Action( GameData.Player, 'move', ( 0, -1 ) )
                 elif event.key == pygame.K_s:
-                    GameData.PlayerPosition.moveTo( GameData.PlayerPosition.x, GameData.PlayerPosition.y + 1 )
+                    self.playerAction = GameComponents.Action( GameData.Player, 'move', ( 0, 1 ) )
                 elif event.key == pygame.K_a:
-                    GameData.PlayerPosition.moveTo( GameData.PlayerPosition.x - 1, GameData.PlayerPosition.y )
+                    self.playerAction = GameComponents.Action( GameData.Player, 'move', ( -1, 0 ) )
                 elif event.key == pygame.K_d:
-                    GameData.PlayerPosition.moveTo( GameData.PlayerPosition.x + 1, GameData.PlayerPosition.y )
+                    self.playerAction = GameComponents.Action( GameData.Player, 'move', ( 1, 0 ) )
+                elif event.key == pygame.K_1:
+                    explosive = ECS.Entity()
+                    explosive.addComponent( GameComponents.Explosive( 32, 6.25 ) )
+                    explosive.addComponent( ECS.Components.Renderer( GameData.Entities, 'tnt' ) )
+                    self.playerAction = GameComponents.Action( GameData.Player, 'dropEntity', explosive )
 
         if Cheats.Flying:
             curKeys = pygame.key.get_pressed()
@@ -176,8 +213,6 @@ class Game( GameState ):
                 GameData.CenterPos[0] -= 1
             if curKeys[pygame.K_d]:
                 GameData.CenterPos[0] += 1
-
-        self.updateCamPos()
 
     def quit( self, event ):
         if self.escapeFunc( event ):
