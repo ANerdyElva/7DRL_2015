@@ -27,9 +27,6 @@ class GameState:
 
         return self.RetVal
 
-    def quit( self, event ):
-        GameData.IsGameRunning = False
-
     def handle( self, event ):
         if event.type == pygame.QUIT or ( event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE ):
             self.quit( event )

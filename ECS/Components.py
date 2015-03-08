@@ -1,8 +1,6 @@
 import random
 import GameData
 
-from Math2D import *
-
 class Component():
     def _setEntity( self, ent ):
         self.entity = ent

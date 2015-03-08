@@ -9,6 +9,8 @@ class Entity():
         self.onRemove = []
 
         self.id = Entity.nextId
+        self.passable = True
+
         Entity.nextId += 1
 
     def setWorld( self, world ):

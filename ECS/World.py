@@ -11,6 +11,7 @@ class World():
         self._isDirty = True
 
         self.entityList = []
+        self.removalList = []
         self.systems = []
 
         self.onRemove = []
@@ -30,13 +31,7 @@ class World():
             print( "Trying to remove entity %s but it's not in the list" % ent )
             return
 
-        self.entityList.remove( ent )
-        for n in self.onRemove:
-            n( ent )
-        for n in ent.onRemove:
-            n( ent )
-
-        self.markDirty()
+        self.removalList.append( ent )
 
     def addEntity( self, ent ):
         assert( ent not in self.entityList )
@@ -112,5 +107,12 @@ class World():
         return ret
 
     def process( self ):
-        for system in self.systems:
-            system.process()
+        for ent in self.removalList:
+            if ent in self.entityList:
+                self.entityList.remove( ent )
+                for n in self.onRemove:
+                    n( ent )
+                for n in ent.onRemove:
+                    n( ent )
+
+                self.markDirty()
