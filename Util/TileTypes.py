@@ -27,6 +27,8 @@ class TileType:
         pass
 
     hardness = None
+    passable = False
+    viewThrough = False
 
     def __str__( self ):
         return "{%d: %s}" % ( self.typeId, self.name )

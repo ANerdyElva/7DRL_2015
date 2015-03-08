@@ -2,26 +2,40 @@ import random
 import math
 import pygame
 
+import libtcodpy as tcod
+
+import ECS
 from Util import TileTypes
 
+import Cheats
+
 class Map:
-    def __init__( self, width, height, tiles, screen ):
+    def __init__( self, width, height, tiles, screen, fovUpdater ):
         self.width = width
         self.height = height
         self.surface = None
 
         self.renderDirty = True
+        self.tcodMapDirty = True
         self.atlas = tiles
         self.target = screen
+
+        self.fovUpdater = fovUpdater
 
     def I( self, x, y ):
         return x + y * self.width
 
     def get( self, x, y ):
         return self._buffer[ self.I( x, y ) ]
+
     def set( self, x, y, val ):
         self._buffer[ self.I( x, y ) ] = val
+
         self.renderDirty = True
+
+        if not self.tcodMapDirty:
+            tile = TileTypes[ val ]
+            tcod.map_set_properties( self.tcodMap, x, y, tile.viewThrough, tile.passable )
 
     def makeMap( self, getVal, preIterInit, postInit ):
         I = lambda x, y: x + y * self.width
@@ -107,16 +121,36 @@ class Map:
                 val = self._buffer[ i ]
                 _x = x * self.atlas.tileSize[1]
 
-                TileTypes[ val ].render( self.surface, _x, _y, x + camX, y + camY )
+                if tcod.map_is_in_fov( self.tcodMap, x + camX, y + camY ) or Cheats.ViewAll:
+                    TileTypes[ val ].render( self.surface, _x, _y, x + camX, y + camY )
+
+    def updateTcod( self ):
+        self.tcodMap = tcod.map_new( self.width, self.height )
+        self.tcodMapDirty = False
+
+        print( 'Updating tcod' )
+
+        i = 0
+        for y in range( 0, self.height ):
+            for x in range( 0, self.width ):
+                tile = TileTypes[ self._buffer[ i ] ]
+                tcod.map_set_properties( self.tcodMap, x, y, tile.viewThrough, tile.passable )
+
+                i+= 1
 
     def render( self, x, y ):
         renderX = int( x / self.atlas.tileSize[0] )
         renderY = int( y / self.atlas.tileSize[1] )
+
+        if self.tcodMapDirty:
+            self.updateTcod()
+
         if ( self.renderDirty or renderX != self.lastRenderX or renderY != self.lastRenderY ):
-            print( 'Rendering.' )
             self.renderDirty = False
             self.lastRenderX = renderX
             self.lastRenderY = renderY
+
+            self.fovUpdater.updateFov( self.tcodMap )
 
             self.preRender( renderX, renderY )
 
