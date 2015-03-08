@@ -21,10 +21,13 @@ MainAtlas.map_val_to_font( 'cursor', 5, 1 )
 MainAtlas.map_val_to_font( 'cursor_green', 6, 1 )
 MainAtlas.map_val_to_font( 'cursor_red', 6, 1 )
 
+Entities = Util.Atlas( 'data/entity.png', TileSize )
+
+Entities.map_val_to_font( 'tnt', 0, 0 )
 
 #Build the TileTypes, no need to register them, that's handled in their constructor.
-Util.TileType( Util.TILE_AIR, 'Air' )
+Util.TileType( Util.TILE_AIR, 'Air', hardness = 0.5 )
 
-Util.MultiTileType( Util.TILE_WALL, 'Wall', MainAtlas, 16, 7 )
+Util.MultiTileType( Util.TILE_WALL, 'Wall', MainAtlas, 16, 7, hardness = 4 )
 Util.MultiTileType( Util.TILE_FIXED_WALL, 'Fixed wall', MainAtlas, 8, 4 )
 

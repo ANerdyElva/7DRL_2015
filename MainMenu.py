@@ -58,6 +58,9 @@ class MainMenu( GameState ):
                 if self.activeMenu is not None:
                     self.activeMenu[1]( event )
 
+        if pygame.time.get_ticks() > 250 and self.isMain:
+            self.startGame( None )
+
         self.render()
 
     def renderCentered( self, font, text, pos, col, alpha = 255 ):

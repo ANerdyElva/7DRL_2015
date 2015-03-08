@@ -4,7 +4,21 @@ from Util import *
 from MapGen import *
 
 import GameData
+import GameComponents
 from GameState import GameState
+
+import ECS
+
+class Test( ECS.System ):
+    def __init__( self, world ):
+        super().__init__( world )
+
+    def clean( self ):
+        print( 'Cleaning' )
+
+    def process( self ):
+        pass
+
 
 class Game( GameState ):
     def __init__( self, screen, escapeFunc ):
@@ -17,9 +31,13 @@ class Game( GameState ):
         GameData.Map.makeMap( initializeRandom, preIterInit, postInit )
 
         self.escapeFunc = escapeFunc
+        self.world = ECS.World()
+        #self.world.addSystem( Test( self.world ) )
 
     def runFrame( self ):
         self.handleInput()
+
+        self.world.process()
 
         self.render()
 
@@ -27,7 +45,16 @@ class Game( GameState ):
         #Game drawing
         self.screen.fill( ( 255, 255, 255 ) )
 
+        #Render map
         GameData.Map.render( self.camX * GameData.TileSize[0], self.camY * GameData.TileSize[1] )
+
+        #Render entities
+        for ent in self.world.getEntityByComponent( ECS.Components.Position, ECS.Components.Renderer ):
+            pos = ent.getComponent( ECS.Components.Position )
+            pos = ( ( pos.x - self.camX ) * GameData.TileSize[0], ( pos.y - self.camY ) * GameData.TileSize[1] )
+            ent.getComponent( ECS.Components.Renderer ).render( self.screen, pos )
+
+        #Render cursor
         GameData.MainAtlas.render( 'cursor', self.screen,
                 ( self.mouseTilePos[0] - self.camX ) * GameData.TileSize[0],
                 ( self.mouseTilePos[1] - self.camY ) * GameData.TileSize[1] )
@@ -50,8 +77,13 @@ class Game( GameState ):
         #Game logic
         for event in pygame.event.get():
             if self.handle( event ):
-                continue
-
+                pass
+            elif event.type == pygame.MOUSEBUTTONUP:
+                explosive = ECS.Entity()
+                explosive.addComponent( ECS.Components.Position( *self.mouseTilePos ) )
+                explosive.addComponent( GameComponents.Explosive( 50 ) )
+                explosive.addComponent( ECS.Components.Renderer( GameData.Entities, 'tnt' ) )
+                self.world.addEntity( explosive )
 
         curKeys = pygame.key.get_pressed()
         if curKeys[pygame.K_w]:
