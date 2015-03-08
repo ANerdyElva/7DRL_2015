@@ -7,7 +7,7 @@ class Atlas:
         self.tileSize = tileSize
 
         self.tileCount = (
-                self.image.get_width() / self.tileSize[0], 
+                self.image.get_width() / self.tileSize[0],
                 self.image.get_height() / self.tileSize[1] )
 
         self.mapping = {}

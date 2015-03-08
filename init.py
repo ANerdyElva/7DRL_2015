@@ -1,9 +1,7 @@
 import pygame
 
-from TileTypes import *
-from Map import Map
+from Util import *
 from MapGen import *
-from Atlas import Atlas
 
 tileSize = ( 32, 32 )
 tileCount = ( 500, 500 )
