@@ -140,7 +140,12 @@ class Map:
                 _x = x * self.atlas.tileSize[1]
 
                 visible = tcod.map_is_in_fov( self.tcodMap, x + camX, y + camY ) or Cheats.ViewAll
-                TileTypes[ val ].render( ( self.visibleSurface if visible else self.surface ), _x, _y, x + camX, y + camY )
+                tileType = TileTypes[ val ]
+
+                if visible and tileType.transparent:
+                    GameData.MainAtlas.render( GameData.FloorAtlasIndex, self.visibleSurface, _x, _y )
+
+                tileType.render( ( self.visibleSurface if visible else self.surface ), _x, _y, x + camX, y + camY )
 
     def updateTcod( self ):
         self.tcodMap = tcod.map_new( self.width, self.height )
