@@ -1,9 +1,11 @@
 import pygame
+import libtcodpy as tcod
 
 from Util import *
 from MapGen import *
 
 import GameData
+import Cheats
 import GameComponents
 from GameState import GameState
 
@@ -16,7 +18,7 @@ class Game( GameState ):
         ###########################################################
         # Init the map
         ###########################################################
-        GameData.Map = Map( GameData.TileCount[0], GameData.TileCount[1], GameData.MainAtlas, self.screen )
+        GameData.Map = Map( GameData.TileCount[0], GameData.TileCount[1], GameData.MainAtlas, self.screen, self )
         GameData.Map.makeMap( initializeRandom, preIterInit, postInit )
 
         self.escapeFunc = escapeFunc
@@ -132,6 +134,10 @@ class Game( GameState ):
                 explosive.addComponent( GameComponents.Explosive( 32, 6.25 ) )
                 explosive.addComponent( ECS.Components.Renderer( GameData.Entities, 'tnt' ) )
                 self.world.addEntity( explosive )
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_F2:
+                    Cheats.ViewAll = not Cheats.ViewAll
+                    GameData.Map.renderDirty = True
 
         curKeys = pygame.key.get_pressed()
         if curKeys[pygame.K_w]:
@@ -146,3 +152,11 @@ class Game( GameState ):
     def quit( self, event ):
         if self.escapeFunc( event ):
             self.IsRunning = False
+
+
+    def updateFov( self, tcodMap ):
+        if GameData.Player is None:
+            tcod.map_compute_fov( tcodMap, int( GameData.CenterPos[0] ), int( GameData.CenterPos[1] ), 50, True, algo = tcod.FOV_BASIC )
+        else:
+            pos = GameData.Player.getComponent( ECS.Components.Position )
+            tcod.map_compute_fov( tcodMap, pos.x, pos.y, 50, True, tcod.FOV_BASIC )

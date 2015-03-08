@@ -10,6 +10,7 @@ IsGameRunning = True
 
 #Global variables
 Map = None #Initialized in init.py
+Player = None
 Fonts = {}
 
 #Load the tiles and register which are being used
@@ -31,11 +32,11 @@ ExplosiveAtlas = Util.Atlas( 'data/explosion.png', TileSize )
 ExplosiveAtlas.map_values_to_font( 0, 74, 0, 0 )
 
 #Build the TileTypes, no need to register them, that's handled in their constructor.
-Util.TileType( Util.TILE_AIR, 'Air', hardness = 0.5 )
+Util.TileType( Util.TILE_AIR, 'Air', hardness = 0.5, passable = True, viewThrough = True )
 
-Util.BaseTileType( Util.TILE_RUBBLE, 'Rubble', MainAtlas, 16, hardness = 0.25 )
-Util.MultiTileType( Util.TILE_WALL, 'Wall', MainAtlas, 0, 7,
-        hardness = 4,
-        onDestruction = lambda x, y: Util.TILE_RUBBLE if random.random() < 0.25 else Util.TILE_AIR )
+Util.BaseTileType( Util.TILE_RUBBLE, 'Rubble', MainAtlas, 16, hardness = 0.25, passable = True, viewThrough = True )
 Util.MultiTileType( Util.TILE_FIXED_WALL, 'Fixed wall', MainAtlas, 8, 4 )
+Util.MultiTileType( Util.TILE_WALL, 'Wall', MainAtlas, 0, 7,
+        hardness = 20,
+        onDestruction = lambda x, y: Util.TILE_RUBBLE if random.random() < 0.25 else Util.TILE_AIR )
 
