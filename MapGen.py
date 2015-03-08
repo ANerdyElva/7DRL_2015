@@ -146,7 +146,7 @@ def postInit( self, I, _buffer ):
 
     circleNum = 0
     while curRadius < 200:
-        sectionCount = max( circleNum * 2, 1 )
+        sectionCount = max( circleNum * 4, 1 )
         nextSurface = curSurface + ( sectionSurface * sectionCount )
 
         nextRadius = int( math.sqrt( nextSurface / math.pi ) )
@@ -155,10 +155,11 @@ def postInit( self, I, _buffer ):
         #Seperate sections in circle
         if sectionCount > 1:
             for i in range( sectionCount ):
-                s = math.sin( i * math.pi * 2 / sectionCount )
-                c = math.cos( i * math.pi * 2 / sectionCount )
+                angle = i * math.pi * 2 / sectionCount
+                s = math.sin( angle )
+                c = math.cos( angle )
 
-                line( int( s * curRadius ) + centerX, int( c * curRadius ) + centerY, int( s * nextRadius ) + centerX, int( c * nextRadius ) + centerY, circleCallback )
+                line( int( s * ( curRadius + 1 ) ) + centerX, int( c * ( curRadius + 1 ) ) + centerY, int( s * nextRadius ) + centerX, int( c * nextRadius ) + centerY, circleCallback )
 
 
         curRadius = nextRadius
