@@ -55,4 +55,4 @@ docs/_build/
 target/
 
 Release
-Linux32/*_src
+Linux*/pygame*
