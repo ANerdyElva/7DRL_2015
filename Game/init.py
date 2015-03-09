@@ -17,10 +17,15 @@ screen = pygame.display.set_mode( ( 1280, 960 ) )
 
 #TODO Render a loading screen to the map?
 import GameData
+
+import DataInit
+DataInit.Load( 'data/Items.json' )
+DataInit.Finalize()
+
+#This loads the textures referenced in GameData TODO
 GameData.Screen = screen
 GameData.update()
 
-#TODO Start a main screen
 import MainMenu
 state = MainMenu.MainMenu( GameData.Screen )
 state.run()

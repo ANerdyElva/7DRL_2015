@@ -1,3 +1,6 @@
 ViewAll = False
-StartGame = False
 Flying = False
+
+KeyboardCheats = True
+StartGame = False
+QuitGame = False

@@ -16,6 +16,8 @@ Player = None
 PlayerPosition = None
 Fonts = {}
 
+TypeDefinitions = {}
+
 #Load the tiles and register which are being used
 MainAtlas = Util.Atlas( 'data/tiles.png', TileSize )
 

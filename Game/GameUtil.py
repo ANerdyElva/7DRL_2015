@@ -27,6 +27,7 @@ def LoadEntities( self ):
     GameData.Player.addComponent( GameComponents.Character( Characters.Player ) )
     GameData.Player.addComponent( GameComponents.CharacterRenderer( GameData.Player.getComponent( GameComponents.Character ) ) )
     GameData.Player.addComponent( GameComponents.TurnTaker( playerAction ) )
+    GameData.Player.addComponent( GameComponents.Inventory( 6 ) )
 
 
     GameData.PlayerPosition = GameData.Player.getComponent( ECS.Components.Position )

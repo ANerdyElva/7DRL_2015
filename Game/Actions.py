@@ -59,7 +59,6 @@ def Attack( actionName, actionSystem, ent, params ):
 def DropEntity( actionName, actionSystem, ent, droppedEnt ):
     pos = ent.getComponent( ECS.Components.Position )
     droppedEnt.addComponent( ECS.Components.Position( pos.x, pos.y ) )
-    droppedEnt.addComponent( GameComponents.TurnTaker( ai = lambda *_: GameComponents.Action( droppedEnt, 'explode', None ), timeTillNextTurn = 100 ) )
 
     actionSystem.world.addEntity( droppedEnt )
 
