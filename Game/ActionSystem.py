@@ -12,7 +12,6 @@ class ActionSystem():
 
     def clean( self ):
         self.toProcessList = []
-        print( 'clean', [ ( n.id, n._nextTurn ) for n in self.toProcessList ] )
 
     def updateProcessList( self ):
         entities = self.world.getEntityByComponent( TurnTaker )
@@ -23,10 +22,8 @@ class ActionSystem():
 
             if not hasattr( ent, '_nextTurn' ):
                 ent._nextTurn = turnTaker.timeTillNextTurn + self.curTurn
-                print( 'Setting', ent.id, ent._nextTurn )
 
             self._insertEnt( ent )
-        print( 'updateProcessList', [ ( n.id, n._nextTurn ) for n in self.toProcessList ] )
 
     def _insertEnt( self, ent ):
         tp = self.toProcessList
@@ -69,7 +66,6 @@ class ActionSystem():
                 print( 'No entities to take actions' )
                 return False
 
-        print( 'process', [ ( n.id, n._nextTurn ) for n in self.toProcessList ] )
         firstEnt = self.toProcessList.pop()
         turnTaker = firstEnt.getComponent( TurnTaker )
 
