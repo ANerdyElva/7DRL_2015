@@ -5,7 +5,7 @@ tiles/brick_dark3.png
 tiles/brick_dark4.png
 tiles/brick_dark5.png
 tiles/brick_dark6.png
-tiles/Empty.png
+tiles/empty.png
 tiles/stone2_dark0.png
 tiles/stone2_dark1.png
 tiles/stone2_dark2.png
