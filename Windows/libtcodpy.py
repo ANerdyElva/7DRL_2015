@@ -25,10 +25,19 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-import sys
+import sys, os
 import ctypes
 import struct
 from ctypes import *
+ 
+def findfile(path):
+    """Find the file named path in the sys.path.
+    Returns the full path name if found, None if not found"""
+    for dirname in sys.path:
+        possible = os.path.join(dirname, path)
+        if os.path.isfile(possible):
+            return possible
+    return path
 
 if not hasattr(ctypes, "c_bool"):   # for Python < 2.6
     c_bool = c_uint8
@@ -44,20 +53,20 @@ MAC=False
 MINGW=False
 MSVC=False
 if sys.platform.find('linux') != -1:
-    _lib = ctypes.cdll['./libtcod.so']
+    _lib = ctypes.cdll[findfile('./libtcod.so')]
     LINUX=True
 elif sys.platform.find('darwin') != -1:
-    _lib = ctypes.cdll['./libtcod.dylib']
+    _lib = ctypes.cdll[findfile('./libtcod.dylib')]
     MAC = True
 elif sys.platform.find('haiku') != -1:
-    _lib = ctypes.cdll['./libtcod.so']
+    _lib = ctypes.cdll[findfile('./libtcod.so')]
     HAIKU = True
 else:
     try:
-        _lib = ctypes.cdll['./libtcod-mingw.dll']
+        _lib = ctypes.cdll[findfile('./libtcod-mingw.dll')]
         MINGW=True
     except WindowsError:
-        _lib = ctypes.cdll['./libtcod-VS.dll']
+        _lib = ctypes.cdll[findfile('./libtcod-VS.dll')]
         MSVC=True
     # On Windows, ctypes doesn't work well with function returning structs,
     # so we have to user the _wrapper functions instead
@@ -713,7 +722,7 @@ def console_map_ascii_code_to_font(asciiCode, fontCharX, fontCharY):
 
 def console_map_ascii_codes_to_font(firstAsciiCode, nbCodes, fontCharX,
                                     fontCharY):
-    if type(firstAsciiCode) == str or type(firstAsciiCode) == bytes:
+    if type(firstAsciiCode) == str or type(asciiCode) == bytes:
         _lib.TCOD_console_map_ascii_codes_to_font(ord(firstAsciiCode), nbCodes,
                                                   fontCharX, fontCharY)
     else:
