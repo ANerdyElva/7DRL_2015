@@ -65,12 +65,13 @@ class Game( GameState ):
 
     def updateCamPos( self ):
         #Calculate camera position
+        def getCamPos( x, y ):
+            return ( min( max( int( x ) - int( self.screenTiles[0] / 2 ), 0 ), GameData.TileCount[0] - self.screenTiles[0] ),
+                    min( max( int( y ) - int( self.screenTiles[1] / 2 ), 0 ), GameData.TileCount[1] - self.screenTiles[1] ) )
         if Cheats.Flying:
-            self.camX = min( max( GameData.CenterPos[0] - int( self.screenTiles[0] / 2 ), 0 ), GameData.TileCount[0] - self.screenTiles[0] )
-            self.camY = min( max( GameData.CenterPos[1] - int( self.screenTiles[1] / 2 ), 0 ), GameData.TileCount[1] - self.screenTiles[1] )
+            self.camX, self.camY = getCamPos( GameData.CenterPos[0], GameData.CenterPos[1] )
         else:
-            self.camX = min( max( GameData.PlayerPosition.x - int( self.screenTiles[0] / 2 ), 0 ), GameData.TileCount[0] - self.screenTiles[0] )
-            self.camY = min( max( GameData.PlayerPosition.y - int( self.screenTiles[1] / 2 ), 0 ), GameData.TileCount[1] - self.screenTiles[1] )
+            self.camX, self.camY = getCamPos( GameData.PlayerPosition.x, GameData.PlayerPosition.y )
 
     def handleInput( self ):
         self.updateCamPos()
@@ -92,11 +93,18 @@ class Game( GameState ):
                 explosive.addComponent( ECS.Components.Renderer( GameData.Entities, 'tnt' ) )
                 self.world.addEntity( explosive )
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_F2:
+                if event.key == pygame.K_F2 and Cheats.KeyboardCheats:
                     Cheats.ViewAll = not Cheats.ViewAll
                     GameData.Map.renderDirty = True
-                elif event.key == pygame.K_F3:
+                elif event.key == pygame.K_F3 and Cheats.KeyboardCheats:
                     Cheats.Flying = not Cheats.Flying
+                elif event.key == pygame.K_F4 and Cheats.KeyboardCheats:
+                    inventory = GameData.Player.getComponent( GameComponents.Inventory )
+                    print( inventory.addItem( GameData.TypeDefinitions['item']['item_stickygoo'], 10 ) )
+                    print( inventory.addItem( GameData.TypeDefinitions['item']['item_explosive'], 10 ) )
+
+                    for n in inventory.inventory:
+                        print( n )
                 elif event.key == pygame.K_w:
                     self.playerAction = GameComponents.Action( GameData.Player, 'move', ( 0, -1 ) )
                 elif event.key == pygame.K_s:
@@ -109,6 +117,7 @@ class Game( GameState ):
                     explosive = ECS.Entity()
                     explosive.addComponent( GameComponents.Explosive( 32, 6.25 ) )
                     explosive.addComponent( ECS.Components.Renderer( GameData.Entities, 'tnt' ) )
+                    explosive.addComponent( GameComponents.TurnTaker( ai = lambda *_: GameComponents.Action( droppedEnt, 'explode', None ), timeTillNextTurn = 200 ) )
                     self.playerAction = GameComponents.Action( GameData.Player, 'dropEntity', explosive )
 
         if Cheats.Flying:

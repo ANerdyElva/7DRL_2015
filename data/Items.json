@@ -1,0 +1,15 @@
+[
+    { "type": null, "name": "item", "maxStackSize": 50 },
+    { "type": null, "name": "entity" },
+    { "type": null, "name": "recipe" },
+
+    { "type": "recipe", "name": "recipe_explosive_sticky", "items": [ "item_stickygoo", "item_explosive" ], "result": "item_explosive_sticky" },
+
+    { "type": "item", "name": "item_stickygoo", "displayname": "Sticky goo" },
+
+    { "type": "item", "name": "item_explosive", "displayname": "Explosive", "drops_as": "ent_explosive", "use": "drop" },
+    { "type": "item", "name": "item_explosive_sticky", "displayname": "Sticky explosive", "drops_as": "ent_explosive_sticky", "use": "throw" },
+
+    { "type": "entity", "name": "ent_explosive", "explosion": { "ray_strength": 5, "ray_count": 64, "delay": 200 } },
+    { "type": "entity", "name": "ent_explosive_sticky", "explosion": { "ray_strength": 2.5, "ray_count": 64 }, "components": [ "sticky", "remote_explosion" ] }
+]

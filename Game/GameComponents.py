@@ -40,6 +40,35 @@ class Character( ECS.Component ):
             super()._setEntity( ent )
             ent.passable = False
 
+class Inventory( ECS.Component ):
+    def __init__( self, inventorySize ):
+        self.inventorySize = inventorySize
+        self.inventory = []
+
+    def addItem( self, item, count ):
+        for n in self.inventory:
+            if n[0] == item:
+                if n[1] + count <= item.maxStackSize:
+                    n[1] += count
+                    count = 0
+                else:
+                    count -= item.maxStackSize - n[1]
+                    n[1] = item.maxStackSize
+
+        while count > 0:
+            if len( self.inventory ) < self.inventorySize:
+                if count < item.maxStackSize:
+                    self.inventory.append( [ item, count ] )
+                    count = 0
+                else:
+                    count -= item.maxStackSize
+                    self.inventory.append( [ item, item.maxStackSize ] )
+            else:
+                return count
+
+        return 0
+
+
 class CharacterRenderer( ECS.Components.Renderer ):
     def __init__( self, char ):
         super().__init__( char.baseType['spriteAtlas'], char.baseType['spriteId'] )
