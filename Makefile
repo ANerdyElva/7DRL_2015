@@ -22,7 +22,13 @@ Release: all
 ifeq ($(OS),Windows_NT)
 	$(MAKE) Release/Windows
 else
+
+ifeq ($(shell uname -m),x86_64)
+	$(MAKE) Release/Linux64
+else
 	$(MAKE) Release/Linux32
+endif
+
 endif
 
 
@@ -33,6 +39,10 @@ else
 	cd Release && ./Launcher.sh
 endif
 
+Linux64: BuildLinux.sh
+	rm -rfv Linux64/pygame*
+	cd Linux64 && ../BuildLinux.sh
+
 Linux32: BuildLinux.sh
 	rm -rfv Linux32/pygame*
 	cd Linux32 && ../BuildLinux.sh
@@ -41,6 +51,11 @@ Release/Windows: dist
 	mkdir Release/Windows
 	cp Windows/*dll Release/Windows
 	cp dist/* Release/Windows
+
+Release/Linux64: Linux64
+	mkdir Release/Linux64
+	cp Linux64/pygame Release/Linux64 -r
+	cp Linux64/libtcod/* Release/Linux64 -r
 
 Release/Linux32: Linux32
 	mkdir Release/Linux32
