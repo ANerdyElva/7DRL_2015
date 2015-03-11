@@ -15,6 +15,7 @@ Screen = None
 Map = None #Initialized in init.py
 Player = None
 PlayerPosition = None
+PlayerInventory = None
 Fonts = {}
 
 TypeDefinitions = {}

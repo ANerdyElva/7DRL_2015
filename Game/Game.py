@@ -22,8 +22,19 @@ class Game( GameState ):
 
         self.escapeFunc = escapeFunc
         self.hotbar = Window.Hotbar( 8 )
-        self.hotbar.slotCallback = lambda slot: GameUtil.onHotbarAction( self, slot )
+        def updateInventory( slot ):
+            self.inventorySlot = slot
+            GameUtil.UpdateInventory( self )
+
+        self.hotbar.slotCallback = updateInventory
+        self.guiParts.append( self.hotbar )
         self.inventorySlot = 0
+
+        self.actionWindow = Window.Window( 300, 200, 0, self.screen.get_height() - 200 )
+        self.guiParts.append( self.actionWindow )
+        self.actionWindow.guiParts.append( Window.Button(
+            LoadFont( 'ButtonFont', 'data/segoesc.ttf', 10 ),
+            'Combine', ( 20 , 30 ), ( 260, 25 ) ) )
 
         ###########################################################
         # Init the map
@@ -49,6 +60,10 @@ class Game( GameState ):
         #Game drawing
         self.screen.fill( ( 0, 0, 0 ) )
 
+        if GameData.PlayerInventory.isDirty:
+            GameUtil.UpdateInventory( self )
+
+
         #Render map
         GameData.Map.render( self.camX * GameData.TileSize[0], self.camY * GameData.TileSize[1] )
 
@@ -66,7 +81,8 @@ class Game( GameState ):
                 ( self.mouseTilePos[1] - self.camY ) * GameData.TileSize[1] )
 
         #Render GUI
-        self.hotbar.render( self.screen )
+        for n in self.guiParts:
+            n.render( self.screen )
 
         pygame.display.flip()
 
@@ -89,26 +105,12 @@ class Game( GameState ):
                 int( ( self.camX * GameData.TileSize[0] + self.mousePos[0] ) / GameData.TileSize[0] ),
                 int( ( self.camY * GameData.TileSize[1] + self.mousePos[1] ) / GameData.TileSize[1] ) )
 
-        def getSelectedItemIfUseableAs( action ):
-            inventory = GameData.Player.getComponent( GameComponents.Inventory )
-            slot = self.inventorySlot
-
-            if slot in inventory.inventory and inventory.inventory[slot][1] > 0:
-                definition = inventory.inventory[slot][0]
-
-                if definition.has( 'use' ) and ( definition.use == action or action in definition.use ):
-                    if inventory.dropItem( slot, 1 ):
-                        GameUtil.UpdateInventory( self, inventory )
-                        return definition
-
-            return None
-
         #Game logic
         for event in pygame.event.get():
             if self.handle( event ):
                 pass
             elif event.type == pygame.MOUSEBUTTONUP:
-                definition = getSelectedItemIfUseableAs( 'throw' )
+                definition = self.getSelectedItemIfUseableAs( 'throw' )
                 if definition is not None:
                     explosive = GameUtil.CreateEntity( self, definition )
                     self.playerAction = GameComponents.Action( GameData.Player, 'throwEntity', ( explosive, self.mouseTilePos ) )
@@ -119,10 +121,8 @@ class Game( GameState ):
                 elif event.key == pygame.K_F3 and Cheats.KeyboardCheats:
                     Cheats.Flying = not Cheats.Flying
                 elif event.key == pygame.K_F4 and Cheats.KeyboardCheats:
-                    inventory = GameData.Player.getComponent( GameComponents.Inventory )
-                    inventory.addItem( GameData.TypeDefinitions['item']['item_stickygoo'], 10 )
-                    inventory.addItem( GameData.TypeDefinitions['item']['item_explosive'], 10 )
-                    GameUtil.UpdateInventory( self, inventory )
+                    GameData.PlayerInventory.addItem( GameData.TypeDefinitions['item']['item_stickygoo'], 10 )
+                    GameData.PlayerInventory.addItem( GameData.TypeDefinitions['item']['item_explosive'], 10 )
                 elif event.key == pygame.K_w:
                     self.playerAction = GameComponents.Action( GameData.Player, 'move', ( 0, -1 ) )
                 elif event.key == pygame.K_s:
@@ -135,13 +135,9 @@ class Game( GameState ):
                     slot = ( event.key - pygame.K_0 ) - 1
                     self.inventorySlot = slot
 
-                    inventory = GameData.Player.getComponent( GameComponents.Inventory )
-                    GameUtil.UpdateInventory( self, inventory )
+                    GameUtil.UpdateInventory( self )
                 elif event.key == pygame.K_e:
-                    definition = getSelectedItemIfUseableAs( 'drop' )
-                    if definition is not None:
-                        explosive = GameUtil.CreateEntity( self, definition )
-                        self.playerAction = GameComponents.Action( GameData.Player, 'dropEntity', explosive )
+                    self.dropItem()
 
         if Cheats.Flying:
             curKeys = pygame.key.get_pressed()
@@ -165,3 +161,21 @@ class Game( GameState ):
         else:
             pos = GameData.Player.getComponent( ECS.Components.Position )
             tcod.map_compute_fov( tcodMap, pos.x, pos.y, 50, True, tcod.FOV_BASIC )
+
+    def getSelectedItemIfUseableAs( self, action ):
+        slot = self.inventorySlot
+
+        if slot in GameData.PlayerInventory.inventory and GameData.PlayerInventory.inventory[slot][1] > 0:
+            definition = GameData.PlayerInventory.inventory[slot][0]
+
+            if definition.has( 'use' ) and ( definition.use == action or action in definition.use ):
+                if GameData.PlayerInventory.dropItem( slot, 1 ):
+                    return definition
+
+        return None
+
+    def dropItem( self ):
+        definition = self.getSelectedItemIfUseableAs( 'drop' )
+        if definition is not None:
+            explosive = GameUtil.CreateEntity( self, definition )
+            self.playerAction = GameComponents.Action( GameData.Player, 'dropEntity', explosive )

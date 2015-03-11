@@ -44,8 +44,10 @@ class Inventory( ECS.Component ):
     def __init__( self, inventorySize ):
         self.inventorySize = inventorySize
         self.inventory = {}
+        self.isDirty = True
 
     def addItem( self, item, count ):
+        self.isDirty = True
         for n in self.inventory:
             itemStack = self.inventory[n]
             if itemStack[0] == item:
@@ -79,6 +81,8 @@ class Inventory( ECS.Component ):
         return 0
 
     def dropItem( self, slot, count ):
+        self.isDirty = True
+
         if slot in self.inventory:
             if self.inventory[slot][1] > count:
                 self.inventory[slot][1] -= count
