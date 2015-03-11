@@ -43,31 +43,52 @@ class Character( ECS.Component ):
 class Inventory( ECS.Component ):
     def __init__( self, inventorySize ):
         self.inventorySize = inventorySize
-        self.inventory = []
+        self.inventory = {}
 
     def addItem( self, item, count ):
         for n in self.inventory:
-            if n[0] == item:
-                if n[1] + count <= item.maxStackSize:
-                    n[1] += count
+            itemStack = self.inventory[n]
+            if itemStack[0] == item:
+                if itemStack[1] + count <= item.maxStackSize:
+                    itemStack[1] += count
                     count = 0
                 else:
-                    count -= item.maxStackSize - n[1]
-                    n[1] = item.maxStackSize
+                    count -= item.maxStackSize - itemStack[1]
+                    itemStack[1] = item.maxStackSize
+
+        def firstEmpty():
+            for i in range( self.inventorySize ):
+                if i not in self.inventory:
+                    return i
+
+            else:
+                return -1
 
         while count > 0:
-            if len( self.inventory ) < self.inventorySize:
-                if count < item.maxStackSize:
-                    self.inventory.append( [ item, count ] )
-                    count = 0
-                else:
-                    count -= item.maxStackSize
-                    self.inventory.append( [ item, item.maxStackSize ] )
-            else:
+            slot = firstEmpty()
+            if slot == -1:
                 return count
+
+            if count < item.maxStackSize:
+                self.inventory[slot] = [ item, count ]
+                count = 0
+            else:
+                count -= item.maxStackSize
+                self.inventory[slot] = [ item, item.maxStackSize ]
 
         return 0
 
+    def dropItem( self, slot, count ):
+        if slot in self.inventory:
+            if self.inventory[slot][1] > count:
+                self.inventory[slot][1] -= count
+                return count
+            else:
+                ret = self.inventory[slot][1]
+                del self.inventory[slot]
+                return ret
+        else:
+            return 0
 
 class CharacterRenderer( ECS.Components.Renderer ):
     def __init__( self, char ):

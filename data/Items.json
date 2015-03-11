@@ -7,9 +7,9 @@
 
     { "type": "item", "name": "item_stickygoo", "displayname": "Sticky goo" },
 
-    { "type": "item", "name": "item_explosive", "displayname": "Explosive", "drops_as": "ent_explosive", "use": "drop" },
-    { "type": "item", "name": "item_explosive_sticky", "displayname": "Sticky explosive", "drops_as": "ent_explosive_sticky", "use": "throw" },
+    { "type": "item", "name": "item_explosive", "displayname": "Explosive", "dropsAs": "ent_explosive", "use": "drop", "image": "img_explosive" },
+    { "type": "item", "name": "item_explosive_sticky", "displayname": "Sticky explosive", "dropsAs": "ent_explosive_sticky", "use": "throw", "image": "img_explosive" },
 
-    { "type": "entity", "name": "ent_explosive", "explosion": { "ray_strength": 5, "ray_count": 64, "delay": 200 } },
-    { "type": "entity", "name": "ent_explosive_sticky", "explosion": { "ray_strength": 2.5, "ray_count": 64 }, "components": [ "sticky", "remote_explosion" ] }
+    { "type": "entity", "name": "ent_explosive", "explosion": { "rayStrength": 5, "rayCount": 64, "delay": 200 }, "image": "img_explosive" },
+    { "type": "entity", "name": "ent_explosive_sticky", "explosion": { "rayStrength": 2.5, "rayCount": 64 }, "components": [ "sticky", "remote_explosion" ], "image": "img_explosive_timed" }
 ]

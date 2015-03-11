@@ -56,6 +56,16 @@ def Sleep( actionName, actionSystem, ent, params ):
 def Attack( actionName, actionSystem, ent, params ):
     return 10
 
+def ThrowEntity( actionName, actionSystem, ent, params ):
+    dropEntity = params[0]
+    dropPos = params[1]
+
+    droppedEnt.addComponent( ECS.Components.Position( *dropPos ) )
+
+    actionSystem.world.addEntity( droppedEnt )
+
+    return 20
+
 def DropEntity( actionName, actionSystem, ent, droppedEnt ):
     pos = ent.getComponent( ECS.Components.Position )
     droppedEnt.addComponent( ECS.Components.Position( pos.x, pos.y ) )
@@ -74,5 +84,6 @@ ActionMap[ 'move' ] = Move
 ActionMap[ 'sleep' ] = Sleep
 ActionMap[ 'attack' ] = Attack
 ActionMap[ 'dropEntity' ] = DropEntity
+ActionMap[ 'throwEntity' ] = ThrowEntity
 
 ActionMap[ 'explode' ] = Explode

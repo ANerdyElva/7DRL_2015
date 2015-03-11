@@ -1,2 +1,5 @@
-tiles/tnt0.png
+tiles/normal_explosive.png
+tiles/timed_explosive.png
+tiles/empty.png
+tiles/empty.png
 tiles/deep_elf_f.png

@@ -1,0 +1,6 @@
+[
+    { "type": null, "name": "image", "size": [32,32] },
+
+    { "type": "image", "name": "img_explosive", "file": "data/entity.png", "atlasX": 0, "atlasY": 0, "key": "explosive" },
+    { "type": "image", "name": "img_explosive_timed", "file": "data/entity.png", "atlasX": 1, "atlasY": 0, "key": "explosive_timed" }
+]
