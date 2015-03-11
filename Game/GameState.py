@@ -13,6 +13,8 @@ class GameState:
         self.IsRunning = True
         self.RetVal = None
 
+        self.guiParts = []
+
     def run( self ):
         average = 0
         frameNum = 0
@@ -37,6 +39,11 @@ class GameState:
     def handle( self, event ):
         if event.type == pygame.QUIT or ( event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE ):
             self.quit( event )
+        elif event.type == pygame.MOUSEBUTTONUP:
+            for n in self.guiParts:
+                if self.guiParts.checkInteraction( event ):
+                    return True
+            return False
         else:
             return False
 

@@ -1,8 +1,8 @@
 import json
-import GameData
 
 _incomplete = []
 _definitions = {}
+TypeDefinitions = {}
 
 def Load( fileName ):
     global _incomplete
@@ -53,8 +53,19 @@ class Data:
     def __init__( self, val ):
         self.__data = val
 
+    def has( self, key ):
+        keys = key.split('_')
+        ret = self.__data
+
+        for n in keys:
+            if n not in ret:
+                return False
+            ret = ret[n]
+
+        return True
+
     def __getattr__( self, key ):
-        keys = key.split('.')
+        keys = key.split('_')
         ret = self.__data
 
         for n in keys:
@@ -71,6 +82,7 @@ class Data:
 def Finalize():
     global _definitions
     global _incomplete
+    global TypeDefinitions
 
     _newIncomplete = []
 
@@ -93,6 +105,7 @@ def Finalize():
 
         _incomplete = _newIncomplete
 
+    TypeDefinitions[''] = {}
     for n in _definitions:
         definition = _definitions[ n ]
 
@@ -100,7 +113,8 @@ def Finalize():
             continue
 
         for base in definition['baseType']:
-            if base not in GameData.TypeDefinitions:
-                GameData.TypeDefinitions[base] = {}
+            if base not in TypeDefinitions:
+                TypeDefinitions[base] = {}
 
-            GameData.TypeDefinitions[base][definition['name']] = Data( definition )
+            TypeDefinitions[base][definition['name']] = Data( definition )
+        TypeDefinitions[''][definition['name']] = Data( definition )

@@ -98,4 +98,41 @@ def HandleExplosions( self, explosionList ):
                 effect.addComponent( GameComponents.ExplosionRenderer() )
                 self.world.addEntity( effect )
 
+def CreateEntity( self, definition ):
+    if definition.has( 'dropsAs' ):
+        definition = GameData.TypeDefinitions[''][ definition.dropsAs ]
 
+    ent = ECS.Entity()
+
+    #TODO Make a nice factory set up out of this
+    if definition.has( 'image' ):
+        img = GameData.TypeDefinitions['image'][ definition.image ]
+        ent.addComponent( ECS.Components.Renderer( GameData.AtlasMap[ img.file ], img.key ) )
+
+    if definition.has( 'explosion' ):
+        exp = GameComponents.Explosive( definition.explosion_rayStrength, definition.explosion_rayStrength )
+        ent.addComponent( exp )
+
+        if definition.has( 'explosion_delay' ):
+            ent.addComponent( GameComponents.TurnTaker( ai = lambda *_: GameComponents.Action( ent, 'explode', None ), timeTillNextTurn = definition.explosion_delay ) )
+
+    return ent
+
+fontInventoryCount = LoadFont( 'InventoryCount', 'data/segoesc.ttf', 8 )
+def UpdateInventory( game, inventory ):
+    selected = game.inventorySlot
+    for i in range( min( inventory.inventorySize, game.hotbar.slotCount ) ):
+        if i in inventory.inventory:
+            def renderSlot( screen, pos ):
+                item = inventory.inventory[i]
+                if item[0].has( 'image' ):
+                    img = GameData.TypeDefinitions['image'][item[0].image]
+                    GameData.AtlasMap[ img.file ].render( img.key, screen, pos[0] + 2, pos[1] + 6 )
+
+                render = RenderFont( fontInventoryCount, str( item[1] ), ( 255, 255, 255 ) )
+                screen.blit( render, ( pos[0] + 6, pos[1] + 44 - render.get_height() ) )
+
+
+            game.hotbar.updateSlot( i, renderSlot, 2 if i == selected else 1 )
+        else:
+            game.hotbar.updateSlot( i, None, 0 )

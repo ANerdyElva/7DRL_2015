@@ -1,6 +1,7 @@
 import Util
 import random
 import pygame
+import DataInit
 
 #Global definitions
 TileSize = ( 32, 32 )
@@ -19,7 +20,10 @@ Fonts = {}
 TypeDefinitions = {}
 
 #Load the tiles and register which are being used
+AtlasMap = {}
+
 MainAtlas = Util.Atlas( 'data/tiles.png', TileSize )
+AtlasMap['data/tiles.png'] = MainAtlas
 
 MainAtlas.map_values_to_font( 0, 7, 0, 0 ) #Stone blocks
 MainAtlas.map_values_to_font( 8, 4, 0, 1 ) #Bricks
@@ -31,6 +35,7 @@ MainAtlas.map_val_to_font( 'cursor_green', 6, 1 )
 MainAtlas.map_val_to_font( 'cursor_red', 6, 1 )
 
 Entities = Util.Atlas( 'data/entity.png', TileSize )
+AtlasMap['data/entity.png'] = Entities
 
 Entities.map_val_to_font( 'tnt', 0, 0 )
 Entities.map_val_to_font( 'player', 1, 0 )
@@ -50,6 +55,19 @@ def update():
     MenuBackground = pygame.transform.smoothscale( pygame.image.load( 'data/parchment_1.png' ), ( Screen.get_width(), Screen.get_height() ) )
     Fog = pygame.transform.smoothscale( pygame.image.load( 'data/fog.png' ), ( Screen.get_width(), Screen.get_height() ) )
     Fog.set_alpha( 60 )
+
+    global TypeDefinitions
+    TypeDefinitions = DataInit.TypeDefinitions
+
+    for n in TypeDefinitions['image']:
+        definition = TypeDefinitions['image'][n]
+
+        if definition.file not in AtlasMap:
+            AtlasMap[definition.file] = Util.Atlas( definition.file, definition.size )
+
+        atlas = AtlasMap[definition.file]
+        atlas.map_val_to_font( definition.key, definition.atlasX, definition.atlasY )
+
 
 #Build the TileTypes, no need to register them, that's handled in their constructor.
 FloorAtlasIndex = 24

@@ -1,5 +1,6 @@
 import pygame
 import sys
+import glob
 
 import Cheats
 
@@ -16,10 +17,15 @@ pygame.display.set_caption( "That's okay. You've got explosives." )
 screen = pygame.display.set_mode( ( 1280, 960 ) )
 
 #TODO Render a loading screen to the map?
+###########################################################
+# Init game data
+###########################################################
 import GameData
 
 import DataInit
-DataInit.Load( 'data/Items.json' )
+for n in glob.glob( 'data/*.json' ):
+    print( 'Loading file: %s' % n )
+    DataInit.Load( n )
 DataInit.Finalize()
 
 #This loads the textures referenced in GameData TODO
