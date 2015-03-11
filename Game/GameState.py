@@ -39,9 +39,9 @@ class GameState:
     def handle( self, event ):
         if event.type == pygame.QUIT or ( event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE ):
             self.quit( event )
-        elif event.type == pygame.MOUSEBUTTONUP:
+        elif event.type in ( pygame.MOUSEBUTTONUP, pygame.MOUSEMOTION ):
             for n in self.guiParts:
-                if self.guiParts.checkInteraction( event ):
+                if n.checkInteraction( event ):
                     return True
             return False
         else:

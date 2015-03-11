@@ -9,7 +9,7 @@ import GameData
 from ActionSystem import ActionSystem
 import Actions
 import Characters
-import GameUtil
+import Window
 
 def LoadEntities( self ):
     self.world = ECS.World()
@@ -27,7 +27,9 @@ def LoadEntities( self ):
     GameData.Player.addComponent( GameComponents.Character( Characters.Player ) )
     GameData.Player.addComponent( GameComponents.CharacterRenderer( GameData.Player.getComponent( GameComponents.Character ) ) )
     GameData.Player.addComponent( GameComponents.TurnTaker( playerAction ) )
-    GameData.Player.addComponent( GameComponents.Inventory( 6 ) )
+
+    GameData.PlayerInventory = GameComponents.Inventory( 8 ) 
+    GameData.Player.addComponent( GameData.PlayerInventory )
 
 
     GameData.PlayerPosition = GameData.Player.getComponent( ECS.Components.Position )
@@ -118,9 +120,14 @@ def CreateEntity( self, definition ):
 
     return ent
 
+def CombineInventory( game, oldSlot ):
+    pass
+
 fontInventoryCount = LoadFont( 'InventoryCount', 'data/segoesc.ttf', 8 )
-def UpdateInventory( game, inventory ):
+def UpdateInventory( game ):
+    inventory = GameData.PlayerInventory
     selected = game.inventorySlot
+
     for i in range( min( inventory.inventorySize, game.hotbar.slotCount ) ):
         if i in inventory.inventory:
             def renderSlot( screen, pos ):
@@ -136,3 +143,50 @@ def UpdateInventory( game, inventory ):
             game.hotbar.updateSlot( i, renderSlot, 2 if i == selected else 1 )
         else:
             game.hotbar.updateSlot( i, None, 0 )
+
+    #Update action window
+    if selected != -1 and selected in inventory.inventory:
+        definition = inventory.inventory[selected][0]
+        defName = definition.name
+
+        game.actionWindow.guiParts = []
+        count = 1
+
+        def addButton( text, cb ):
+            nonlocal count
+            button = Window.Button( LoadFont( 'ButtonFont', '', '' ), text, ( 20, 30 * count ), ( 260, 25 ) )
+            button.pressCallback = cb
+            game.actionWindow.guiParts.append( button )
+
+            count += 1
+
+
+        # Combine button
+        for recipeName in GameData.TypeDefinitions['recipe']:
+            recipe = GameData.TypeDefinitions['recipe'][recipeName]
+            if defName in recipe.items:
+                addButton( 'Combine', None )
+                break
+
+        print( definition )
+        print( definition.has( 'use' ) )
+
+        # Action buttons
+        if definition.has( 'use' ):
+            uses = definition.use
+
+            if isinstance( uses, str ):
+                uses = ( uses,  )
+            print( uses )
+
+            if 'throw' in uses:
+                addButton( 'Throw (Click on target)', None )
+
+            if 'drop' in uses:
+                addButton( 'Drop explosive (E)', lambda *_: game.dropItem() )
+
+        addButton( 'Destroy item', lambda *_: inventory.dropItem( selected, 1 ) )
+
+        curCount = inventory.inventory[selected][1]
+        addButton( 'Destroy item (%d)' % int( curCount / 2 ), lambda *_: inventory.dropItem( selected, int( curCount / 2 ) ) )
+        addButton( 'Destroy item (%d)' % curCount, lambda *_: inventory.dropItem( selected, curCount ) )
