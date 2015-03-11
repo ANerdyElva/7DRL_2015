@@ -57,7 +57,7 @@ def Attack( actionName, actionSystem, ent, params ):
     return 10
 
 def ThrowEntity( actionName, actionSystem, ent, params ):
-    dropEntity = params[0]
+    droppedEnt = params[0]
     dropPos = params[1]
 
     droppedEnt.addComponent( ECS.Components.Position( *dropPos ) )

@@ -16,6 +16,7 @@ Release: all
 	cp -v README.md LICENSE Release
 
 	cp -r data Release
+	cp -r gui Release
 
 	cp Launcher.sh Launcher.bat Release
 

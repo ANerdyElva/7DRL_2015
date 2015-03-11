@@ -31,6 +31,11 @@ def LoadEntities( self ):
     GameData.PlayerInventory = GameComponents.Inventory( 8 ) 
     GameData.Player.addComponent( GameData.PlayerInventory )
 
+    GameData.PlayerInventory.addItem( GameData.TypeDefinitions['item']['item_explosive'], 1 )
+    def updateInventoryCallback():
+        GameData.PlayerInventory.inventory[0][1] = 99
+    GameData.PlayerInventory.updateCallback = updateInventoryCallback
+    GameData.PlayerInventory.addItem( GameData.TypeDefinitions['item']['item_explosive'], 1 )
 
     GameData.PlayerPosition = GameData.Player.getComponent( ECS.Components.Position )
     self.world.addEntity( GameData.Player )
@@ -112,7 +117,7 @@ def CreateEntity( self, definition ):
         ent.addComponent( ECS.Components.Renderer( GameData.AtlasMap[ img.file ], img.key ) )
 
     if definition.has( 'explosion' ):
-        exp = GameComponents.Explosive( definition.explosion_rayStrength, definition.explosion_rayStrength )
+        exp = GameComponents.Explosive( int( definition.explosion_rayCount / 4 ), definition.explosion_rayStrength )
         ent.addComponent( exp )
 
         if definition.has( 'explosion_delay' ):
@@ -122,6 +127,87 @@ def CreateEntity( self, definition ):
 
 def CombineInventory( game, oldSlot ):
     pass
+
+def ShowCombineCount( game, recipe, maxCraftable ):
+    game.actionWindow.guiParts = []
+    count = 1
+
+    def addButton( text, cb ):
+        nonlocal count
+        button = Window.Button( LoadFont( 'ButtonFont', '', '' ), text, ( 20, 30 * count ), ( 260, 25 ) )
+        button.pressCallback = cb
+        game.actionWindow.guiParts.append( button )
+
+        count += 1
+
+    def cancel( *_ ):
+        GameData.PlayerInventory.isDirty = True 
+
+    addButton( 'Cancel', cancel )
+    
+    def craft( finalCount ):
+        inv = GameData.PlayerInventory.inventory
+
+        for i in range( finalCount ):
+            if GameData.PlayerInventory.addItem( GameData.TypeDefinitions['item'][recipe.result], 1 ) == 0:
+                notDropped = dict( [ (n,1) for n in recipe.items ] )
+
+                while len( notDropped ) > 0:
+                    try:
+                        for n in inv:
+                            if inv[n][0].name in notDropped:
+                                del notDropped[inv[n][0].name]
+                                GameData.PlayerInventory.dropItem( n, 1 )
+                    except:
+                        pass
+
+
+    addButton( 'Craft 1', lambda *_: craft( 1 ) )
+    addButton( 'Craft %d' % int( maxCraftable / 2 ), lambda *_: craft( int( maxCraftable / 2 )) )
+    addButton( 'Craft %d' % maxCraftable, lambda *_: craft( maxCraftable ) )
+
+
+def ShowCombineButton( game ):
+    game.actionWindow.guiParts = []
+    count = 1
+
+    def addButton( text, cb ):
+        nonlocal count
+        button = Window.Button( LoadFont( 'ButtonFont', '', '' ), text, ( 20, 30 * count ), ( 260, 25 ) )
+        button.pressCallback = cb
+        game.actionWindow.guiParts.append( button )
+
+        count += 1
+
+    def cancel( *_ ):
+        GameData.PlayerInventory.isDirty = True 
+
+    addButton( 'Cancel', cancel )
+
+    selected = game.inventorySlot
+    definition = GameData.PlayerInventory.inventory[selected][0]
+    defName = definition.name
+
+    for recipeName in GameData.TypeDefinitions['recipe']:
+        recipe = GameData.TypeDefinitions['recipe'][recipeName]
+        recipeResult = GameData.TypeDefinitions['item'][recipe.result]
+
+        maxCount = recipeResult.maxStackSize
+        typedCount = {}
+
+        for name in recipe.items:
+            typedCount[name] = 0
+
+            for i in GameData.PlayerInventory.inventory:
+                item = GameData.PlayerInventory.inventory[i][0]
+                if item.name == name:
+                    typedCount[name] += GameData.PlayerInventory.inventory[i][1]
+
+        maxCraftable = min( [ typedCount[n] for n in typedCount ] )
+        if maxCraftable > maxCount:
+            maxCraftable = maxCount
+        if maxCraftable > 0:
+            addButton( '%s (max %d)' % ( recipeResult.displayname, maxCraftable ), lambda *_: ShowCombineCount( game, recipe, maxCraftable ) )
 
 fontInventoryCount = LoadFont( 'InventoryCount', 'data/segoesc.ttf', 8 )
 def UpdateInventory( game ):
@@ -145,7 +231,9 @@ def UpdateInventory( game ):
             game.hotbar.updateSlot( i, None, 0 )
 
     #Update action window
-    if selected != -1 and selected in inventory.inventory:
+    if selected == -1 or selected not in inventory.inventory:
+        game.actionWindow.guiParts = []
+    else:
         definition = inventory.inventory[selected][0]
         defName = definition.name
 
@@ -165,11 +253,9 @@ def UpdateInventory( game ):
         for recipeName in GameData.TypeDefinitions['recipe']:
             recipe = GameData.TypeDefinitions['recipe'][recipeName]
             if defName in recipe.items:
-                addButton( 'Combine', None )
-                break
 
-        print( definition )
-        print( definition.has( 'use' ) )
+                addButton( 'Combine', lambda *_: ShowCombineButton( game ) )
+                break
 
         # Action buttons
         if definition.has( 'use' ):
@@ -177,7 +263,6 @@ def UpdateInventory( game ):
 
             if isinstance( uses, str ):
                 uses = ( uses,  )
-            print( uses )
 
             if 'throw' in uses:
                 addButton( 'Throw (Click on target)', None )
@@ -185,8 +270,9 @@ def UpdateInventory( game ):
             if 'drop' in uses:
                 addButton( 'Drop explosive (E)', lambda *_: game.dropItem() )
 
-        addButton( 'Destroy item', lambda *_: inventory.dropItem( selected, 1 ) )
-
         curCount = inventory.inventory[selected][1]
-        addButton( 'Destroy item (%d)' % int( curCount / 2 ), lambda *_: inventory.dropItem( selected, int( curCount / 2 ) ) )
-        addButton( 'Destroy item (%d)' % curCount, lambda *_: inventory.dropItem( selected, curCount ) )
+        if curCount < 99:
+            addButton( 'Destroy item (1)', lambda *_: inventory.dropItem( selected, 1 ) )
+
+            #addButton( 'Destroy item (%d)' % int( curCount / 2 ), lambda *_: inventory.dropItem( selected, int( curCount / 2 ) ) )
+            addButton( 'Destroy item (%d)' % curCount, lambda *_: inventory.dropItem( selected, curCount ) )
