@@ -45,6 +45,7 @@ class Inventory( ECS.Component ):
         self.inventorySize = inventorySize
         self.inventory = {}
         self.isDirty = True
+        self.updateCallback = lambda: None
 
     def addItem( self, item, count ):
         self.isDirty = True
@@ -61,14 +62,17 @@ class Inventory( ECS.Component ):
         def firstEmpty():
             for i in range( self.inventorySize ):
                 if i not in self.inventory:
+                    self.updateCallback()
                     return i
 
             else:
+                self.updateCallback()
                 return -1
 
         while count > 0:
             slot = firstEmpty()
             if slot == -1:
+                self.updateCallback()
                 return count
 
             if count < item.maxStackSize:
@@ -78,6 +82,7 @@ class Inventory( ECS.Component ):
                 count -= item.maxStackSize
                 self.inventory[slot] = [ item, item.maxStackSize ]
 
+        self.updateCallback()
         return 0
 
     def dropItem( self, slot, count ):
@@ -86,12 +91,15 @@ class Inventory( ECS.Component ):
         if slot in self.inventory:
             if self.inventory[slot][1] > count:
                 self.inventory[slot][1] -= count
+                self.updateCallback()
                 return count
             else:
                 ret = self.inventory[slot][1]
                 del self.inventory[slot]
+                self.updateCallback()
                 return ret
         else:
+            self.updateCallback()
             return 0
 
 class CharacterRenderer( ECS.Components.Renderer ):

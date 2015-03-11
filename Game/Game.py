@@ -62,6 +62,7 @@ class Game( GameState ):
 
         if GameData.PlayerInventory.isDirty:
             GameUtil.UpdateInventory( self )
+            GameData.PlayerInventory.isDirty = False
 
 
         #Render map
@@ -122,7 +123,6 @@ class Game( GameState ):
                     Cheats.Flying = not Cheats.Flying
                 elif event.key == pygame.K_F4 and Cheats.KeyboardCheats:
                     GameData.PlayerInventory.addItem( GameData.TypeDefinitions['item']['item_stickygoo'], 10 )
-                    GameData.PlayerInventory.addItem( GameData.TypeDefinitions['item']['item_explosive'], 10 )
                 elif event.key == pygame.K_w:
                     self.playerAction = GameComponents.Action( GameData.Player, 'move', ( 0, -1 ) )
                 elif event.key == pygame.K_s:
@@ -131,7 +131,7 @@ class Game( GameState ):
                     self.playerAction = GameComponents.Action( GameData.Player, 'move', ( -1, 0 ) )
                 elif event.key == pygame.K_d:
                     self.playerAction = GameComponents.Action( GameData.Player, 'move', ( 1, 0 ) )
-                elif event.key in ( pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5, pygame.K_6 ):
+                elif event.key in ( pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5, pygame.K_6, pygame.K_7, pygame.K_8 ):
                     slot = ( event.key - pygame.K_0 ) - 1
                     self.inventorySlot = slot
 
