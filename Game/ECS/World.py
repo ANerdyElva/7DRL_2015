@@ -116,3 +116,5 @@ class World():
                     n( ent )
 
                 self.markDirty()
+
+        self.clear()
