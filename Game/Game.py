@@ -68,7 +68,6 @@ class Game( GameState ):
                 count += 1
 
             def pickup( item ):
-                print( item, item.entity )
                 remaining = GameData.PlayerInventory.addItem( item.definition, item.count )
                 if remaining > 0:
                     item.count -= remaining
