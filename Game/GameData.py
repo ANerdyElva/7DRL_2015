@@ -39,7 +39,7 @@ Entities = Util.Atlas( 'data/entity.png', TileSize )
 AtlasMap['data/entity.png'] = Entities
 
 Entities.map_val_to_font( 'tnt', 0, 0 )
-Entities.map_val_to_font( 'player', 1, 0 )
+Entities.map_val_to_font( 'player', 4, 0 )
 
 ExplosiveAtlas = Util.Atlas( 'data/explosion.png', TileSize )
 ExplosiveAtlas.map_values_to_font( 0, 74, 0, 0 )

@@ -36,6 +36,8 @@ class Game( GameState ):
             LoadFont( 'ButtonFont', 'data/segoesc.ttf', 10 ),
             'Combine', ( 20 , 30 ), ( 260, 25 ) ) )
 
+        self.pickupWindow = Window.Window( 300, 200, self.screen.get_width() - 300, self.screen.get_height() - 200 )
+
         ###########################################################
         # Init the map
         ###########################################################
@@ -49,6 +51,38 @@ class Game( GameState ):
 
         if self.playerAction is not None:
             self.actionSystem.process( 500 )
+
+        itemsAtCurPos = [ n for n in [ n.getComponent( GameComponents.Item ) for n in self.world.getEntitiesAtPos( GameData.PlayerPosition ) ] if n is not None ]
+        if len( itemsAtCurPos ) > 0:
+            if self.pickupWindow not in self.guiParts:
+                self.guiParts.append( self.pickupWindow )
+
+            count = 1
+
+            def addButton( text, cb ):
+                nonlocal count
+                button = Window.Button( LoadFont( 'ButtonFont', '', '' ), text, ( 20, 30 * count ), ( 260, 25 ) )
+                button.pressCallback = cb
+                self.pickupWindow.guiParts.append( button )
+
+                count += 1
+
+            def pickup( item ):
+                print( item, item.entity )
+                remaining = GameData.PlayerInventory.addItem( item.definition, item.count )
+                if remaining > 0:
+                    item.count -= remaining
+                else:
+                    self.world.removeEntity( item.entity )
+                self.pickupWindow.guiParts = []
+
+            self.pickupWindow.guiParts.clear()
+            if len( self.pickupWindow.guiParts ) == 0:
+                for item in itemsAtCurPos:
+                    addButton( '%s (%d)' % ( item.definition.displayname, item.count ), lambda *_: pickup( item ) )
+
+        elif self.pickupWindow in self.guiParts:
+            self.guiParts.remove( self.pickupWindow )
 
         GameUtil.HandleExplosions( self, self.world.getEntityByComponent( ECS.Components.Position, GameComponents.Explosive ) )
         self.world.process()
@@ -113,7 +147,10 @@ class Game( GameState ):
             elif event.type == pygame.MOUSEBUTTONUP:
                 definition = self.getSelectedItemIfUseableAs( 'throw' )
                 if definition is not None:
-                    explosive = GameUtil.CreateEntity( self, definition )
+                    if definition.has( 'dropsAs' ):
+                        explosive = GameUtil.CreateEntity( self, definition.dropsAs )
+                    else:
+                        explosive = GameUtil.CreateEntity( self, definition )
                     self.playerAction = GameComponents.Action( GameData.Player, 'throwEntity', ( explosive, self.mouseTilePos ) )
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_F2 and Cheats.KeyboardCheats:
@@ -177,5 +214,8 @@ class Game( GameState ):
     def dropItem( self ):
         definition = self.getSelectedItemIfUseableAs( 'drop' )
         if definition is not None:
-            explosive = GameUtil.CreateEntity( self, definition )
+            if definition.has( 'dropsAs' ):
+                explosive = GameUtil.CreateEntity( self, definition.dropsAs )
+            else:
+                explosive = GameUtil.CreateEntity( self, definition )
             self.playerAction = GameComponents.Action( GameData.Player, 'dropEntity', explosive )

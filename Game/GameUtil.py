@@ -40,6 +40,12 @@ def LoadEntities( self ):
     GameData.PlayerPosition = GameData.Player.getComponent( ECS.Components.Position )
     self.world.addEntity( GameData.Player )
 
+    #Drop key in room
+    key = CreateEntity( self, 'item_explosive_special' )
+    key.addComponent( ECS.Components.Position( int( GameData.TileCount[0] / 2 ), int( GameData.TileCount[1] / 2 ) + 3 ) )
+    self.world.addEntity( key )
+
+
 def HandleExplosions( self, explosionList ):
     hitTiles = {}
 
@@ -87,7 +93,7 @@ def HandleExplosions( self, explosionList ):
             handleRay( s * 200 + 20 * random.random() - 10, -c * 200 + 20 * random.random() - 10 )
             handleRay( -s * 200 + 20 * random.random() - 10, -c * 200 + 20 * random.random() - 10 )
 
-        self.world.removeEntity( ent )
+        explosive.onFire()
 
     if len( hitTiles ) > 0:
         for tilePos in hitTiles:
@@ -105,9 +111,10 @@ def HandleExplosions( self, explosionList ):
                 effect.addComponent( GameComponents.ExplosionRenderer() )
                 self.world.addEntity( effect )
 
+CreateEntityComponentMapping = { 'item': GameComponents.Item, 'specialbomb': GameComponents.SpecialExplosive }
 def CreateEntity( self, definition ):
-    if definition.has( 'dropsAs' ):
-        definition = GameData.TypeDefinitions[''][ definition.dropsAs ]
+    if isinstance( definition, str ):
+        definition = GameData.TypeDefinitions[''][ definition ]
 
     ent = ECS.Entity()
 
@@ -123,10 +130,17 @@ def CreateEntity( self, definition ):
         if definition.has( 'explosion_delay' ):
             ent.addComponent( GameComponents.TurnTaker( ai = lambda *_: GameComponents.Action( ent, 'explode', None ), timeTillNextTurn = definition.explosion_delay ) )
 
-    return ent
+    if 'item' in definition.baseType:
+        ent.addComponent( GameComponents.Item( definition ) )
 
-def CombineInventory( game, oldSlot ):
-    pass
+    if definition.has( 'components' ):
+        try:
+            for comp in definition.components:
+                print( comp, definition.components[ comp ] )
+                ent.addComponent( CreateEntityComponentMapping[ comp ]( * definition.components[ comp ] ) )
+        except Exception as e:
+            print( 'Exception: ' + str( e ) )
+    return ent
 
 def ShowCombineCount( game, recipe, maxCraftable ):
     game.actionWindow.guiParts = []

@@ -8,8 +8,22 @@ class Explosive( ECS.Component ):
         self.strength = strength
         self.isFiring = False
 
+    def onFire( self ):
+        self.entity.world.removeEntity( self.entity )
+
     def __str__( self ):
         return '{Explosive, strength: %d}' % ( self.strength )
+
+class SpecialExplosive( Explosive ):
+    def __init__( self ):
+        self.rayPerSquare = 16
+        self.strength = 8
+        self.isFiring = True
+
+    def onFire( self ):
+        self.isFiring = False
+        pass
+
 
 class ExplosionRenderer( ECS.Components.Renderer ):
     def __init__( self ):
@@ -40,6 +54,14 @@ class Character( ECS.Component ):
             super()._setEntity( ent )
             ent.passable = False
 
+class Item( ECS.Component ):
+    def __init__( self, definition ):
+        if isinstance( definition, str ):
+            self.definition = GameData.TypeDefinitions[''][ definition ]
+        else:
+            self.definition = definition
+        self.count = 1
+
 class Inventory( ECS.Component ):
     def __init__( self, inventorySize ):
         self.inventorySize = inventorySize
@@ -62,11 +84,8 @@ class Inventory( ECS.Component ):
         def firstEmpty():
             for i in range( self.inventorySize ):
                 if i not in self.inventory:
-                    self.updateCallback()
                     return i
-
             else:
-                self.updateCallback()
                 return -1
 
         while count > 0:
@@ -75,7 +94,7 @@ class Inventory( ECS.Component ):
                 self.updateCallback()
                 return count
 
-            if count < item.maxStackSize:
+            if count <= item.maxStackSize:
                 self.inventory[slot] = [ item, count ]
                 count = 0
             else:
