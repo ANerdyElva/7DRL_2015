@@ -75,8 +75,7 @@ def DropEntity( actionName, actionSystem, ent, droppedEnt ):
     return 20
 
 def Explode( actionName, actionSystem, ent, params ):
-    ent.getComponent( GameComponents.Explosive ).isFiring = True
-    return 1000
+    return ent.getComponent( GameComponents.Explosive ).doFire()
 
 
 ActionMap = {}

@@ -123,12 +123,12 @@ def CreateEntity( self, definition ):
         img = GameData.TypeDefinitions['image'][ definition.image ]
         ent.addComponent( ECS.Components.Renderer( GameData.AtlasMap[ img.file ], img.key ) )
 
-    if definition.has( 'explosion' ):
+    if definition.has( 'explosion_rayStrength' ) and definition.has( 'explosion_rayCount' ):
         exp = GameComponents.Explosive( int( definition.explosion_rayCount / 4 ), definition.explosion_rayStrength )
         ent.addComponent( exp )
 
-        if definition.has( 'explosion_delay' ):
-            ent.addComponent( GameComponents.TurnTaker( ai = lambda *_: GameComponents.Action( ent, 'explode', None ), timeTillNextTurn = definition.explosion_delay ) )
+    if definition.has( 'explosion_delay' ):
+        ent.addComponent( GameComponents.TurnTaker( ai = lambda *_: GameComponents.Action( ent, 'explode', None ), timeTillNextTurn = definition.explosion_delay ) )
 
     if 'item' in definition.baseType:
         ent.addComponent( GameComponents.Item( definition ) )
@@ -136,7 +136,6 @@ def CreateEntity( self, definition ):
     if definition.has( 'components' ):
         try:
             for comp in definition.components:
-                print( comp, definition.components[ comp ] )
                 ent.addComponent( CreateEntityComponentMapping[ comp ]( * definition.components[ comp ] ) )
         except Exception as e:
             print( 'Exception: ' + str( e ) )
@@ -288,5 +287,7 @@ def UpdateInventory( game ):
         if curCount < 99:
             addButton( 'Destroy item (1)', lambda *_: inventory.dropItem( selected, 1 ) )
 
-            #addButton( 'Destroy item (%d)' % int( curCount / 2 ), lambda *_: inventory.dropItem( selected, int( curCount / 2 ) ) )
-            addButton( 'Destroy item (%d)' % curCount, lambda *_: inventory.dropItem( selected, curCount ) )
+            if curCount > 10:
+                addButton( 'Destroy item (%d)' % int( curCount / 2 ), lambda *_: inventory.dropItem( selected, int( curCount / 2 ) ) )
+            if curCount > 5:
+                addButton( 'Destroy item (%d)' % curCount, lambda *_: inventory.dropItem( selected, curCount ) )

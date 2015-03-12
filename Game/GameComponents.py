@@ -1,6 +1,7 @@
 import ECS
 import GameData
 import random
+from Util.TileTypes import *
 
 class Explosive( ECS.Component ):
     def __init__( self, rayPerSquare, strength ):
@@ -11,18 +12,44 @@ class Explosive( ECS.Component ):
     def onFire( self ):
         self.entity.world.removeEntity( self.entity )
 
+    def hitEntity( self, otherEnt ):
+        pass
+
     def __str__( self ):
         return '{Explosive, strength: %d}' % ( self.strength )
 
+    def doFire( self ):
+        self.isFiring = True
+        return 1000
+
 class SpecialExplosive( Explosive ):
     def __init__( self ):
-        self.rayPerSquare = 16
-        self.strength = 8
-        self.isFiring = True
+        super().__init__( 16, 8 )
 
     def onFire( self ):
-        self.isFiring = False
-        pass
+        self.entity.world.removeEntity( self.entity )
+
+        _map = GameData.Map
+        self.pos = self.entity.getComponent( ECS.Components.Position )
+
+        for x in range( -4, 5 ):
+            for y in range( -4, 5 ):
+                if ( x ** 2 + y ** 2 ) < 4 ** 2:
+                    _map.set( self.pos.x + x, self.pos.y + y, TILE_AIR )
+
+    def doFire( self ):
+        _map = GameData.Map
+        self.pos = self.entity.getComponent( ECS.Components.Position )
+
+        # Check cardinal directions to fire
+        if (_map.get( self.pos.x - 1, self.pos.y ) == TILE_FIXED_WALL or
+            _map.get( self.pos.x + 1, self.pos.y ) == TILE_FIXED_WALL or
+            _map.get( self.pos.x, self.pos.y - 1 ) == TILE_FIXED_WALL or
+            _map.get( self.pos.x, self.pos.y + 1 ) == TILE_FIXED_WALL ):
+                self.isFiring = True
+        return 1000
+
+
 
 
 class ExplosionRenderer( ECS.Components.Renderer ):
@@ -158,8 +185,8 @@ class TurnTakerAi():
         if turnComponent.target is None:
             return Action( ent, 'move', random.choice( _directions ) )
 
-        pos = Point( ent.getComponent( Position ) )
-        targetPos = Point( turnComponent.target.getComponent( Position ) )
+        pos = Point( ent.getComponent( ECS.Components.Position ) )
+        targetPos = Point( turnComponent.target.getComponent( ECS.Components.Position ) )
 
         if ( targetPos - pos ).squaredLength < 8:
             return Action( ent, 'attack', turnComponent.target )
