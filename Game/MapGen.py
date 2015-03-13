@@ -130,3 +130,10 @@ def postInit( self, I, _buffer ):
         curRadius = nextRadius
         curSurface = int( curRadius ** 2 * math.pi )
         circleNum += 1
+
+    curRadius += 1
+    curRadiusSquared = curRadius ** 2
+    for x in range( self.width ):
+        for y in range( self.height ):
+            if ( ( x - centerX ) ** 2 + ( y - centerY ) ** 2 ) > curRadiusSquared:
+                _buffer[ I( x, y ) ] = TILE_AIR #NOOP, but for clarity
