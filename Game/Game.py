@@ -33,7 +33,7 @@ class Game( GameState ):
         self.actionWindow = Window.Window( 300, 200, 0, self.screen.get_height() - 200 )
         self.guiParts.append( self.actionWindow )
         self.actionWindow.guiParts.append( Window.Button(
-            LoadFont( 'ButtonFont', 'data/framd.ttf', 10 ),
+            LoadFont( 'ButtonFont' ),
             'Combine', ( 20 , 30 ), ( 260, 25 ) ) )
 
         self.pickupWindow = Window.Window( 300, 200, self.screen.get_width() - 300, self.screen.get_height() - 200 )
@@ -50,8 +50,10 @@ class Game( GameState ):
     def runFrame( self ):
         self.handleInput()
 
-        if self.playerAction is not None:
-            self.actionSystem.process( 500 )
+        processingStart = pygame.time.get_ticks()
+        steps = 0
+        while self.playerAction is not None:
+            self.actionSystem.process()
             playerPos = Math2D.Point( GameData.PlayerPosition )
             if self.playerAction is None:
                 for ent in self.world.getEntityByComponent( ECS.Components.Position, GameComponents.TurnTaker ):
@@ -63,6 +65,9 @@ class Game( GameState ):
                         ent.active = False
 
                 self.actionSystem.updateProcessList()
+            steps += 1
+            if ( pygame.time.get_ticks() - processingStart ) > 20:
+                break
 
         itemsAtCurPos = [ n for n in [ n.getComponent( GameComponents.Item ) for n in self.world.getEntitiesAtPos( GameData.PlayerPosition ) ] if n is not None ]
         if len( itemsAtCurPos ) > 0:
@@ -171,6 +176,8 @@ class Game( GameState ):
                     Cheats.Flying = not Cheats.Flying
                 elif event.key == pygame.K_F4 and Cheats.KeyboardCheats:
                     GameData.PlayerInventory.addItem( GameData.TypeDefinitions['item']['item_stickygoo'], 10 )
+                    GameData.PlayerInventory.addItem( GameData.TypeDefinitions['item']['item_feather'], 10 )
+                    GameData.PlayerInventory.addItem( GameData.TypeDefinitions['item']['item_magicorb'], 10 )
                 elif event.key in ( pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5, pygame.K_6, pygame.K_7, pygame.K_8 ):
                     slot = ( event.key - pygame.K_0 ) - 1
                     self.inventorySlot = slot

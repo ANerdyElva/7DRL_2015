@@ -28,9 +28,9 @@ class GuiPart:
     def _getSurface( self ):
         return self.surface
 
-    def _makeSurface( self, width, height ):
+    def _makeSurface( self, width, height, flags = 0 ):
         if self.surface is None or width != self.surface.get_width() or height != self.surface.get_height():
-            self.surface = pygame.Surface( ( width, height ) )
+            self.surface = pygame.Surface( ( width, height ), flags = flags )
 
         self.width = width
         self.height = height
@@ -175,6 +175,34 @@ class Button( GuiPart ):
         self._makeSurface( *size )
 
         self.surface.fill( (  24, 17, 15 ) )
+        renderedFont = Util.RenderFont( self.font, self.text, ( 255, 255, 255 ) )
+        self.surface.blit( renderedFont,
+                ( ( self.surface.get_width() - renderedFont.get_width() ) / 2, ( self.surface.get_height() - renderedFont.get_height() ) / 2 ) )
+
+    def doInteraction( self, x, y, pressed ):
+        if x < 0 or x > self.width or y < 0 or y > self.height:
+            return False
+
+        if pressed and self.pressCallback is not None:
+            self.pressCallback( self )
+
+        return True
+
+    def render( self, target ):
+        super().render( target )
+
+class Text( GuiPart ):
+    def __init__( self, font, text, pos, size ):
+        super().__init__()
+        self.font = font
+        self.text = text
+
+        self.pressCallback = None
+
+        self.move( *pos )
+        self._makeSurface( *size, flags = pygame.SRCALPHA )
+
+        self.surface.fill( ( 0, 0, 0, 0 ) )
         renderedFont = Util.RenderFont( self.font, self.text, ( 255, 255, 255 ) )
         self.surface.blit( renderedFont,
                 ( ( self.surface.get_width() - renderedFont.get_width() ) / 2, ( self.surface.get_height() - renderedFont.get_height() ) / 2 ) )

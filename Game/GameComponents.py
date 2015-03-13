@@ -105,6 +105,9 @@ class Character( ECS.Component ):
         ent.passable = False
         ent.isPlayer = False
 
+        if self.definition.has( 'damageRange' ):
+            ent.attackDistance = self.definition.damageRange ** 2
+
     def takeDamage( self, count ):
         self.attributes[ 'Health' ] -= count
         if self.attributes[ 'Health' ] < 0:
@@ -302,7 +305,7 @@ class TurnTakerAi():
         pos = Math2D.Point( ent.getComponent( ECS.Components.Position ) )
         targetPos = Math2D.Point( turnComponent.target.getComponent( ECS.Components.Position ) )
 
-        if ( targetPos - pos ).squaredLength < 8:
+        if ( targetPos - pos ).squaredLength < ent.attackDistance:
             return Action( ent, 'attack', turnComponent.target )
         elif ( targetPos - pos ).squaredLength < 20 ** 2:
             if wasBlocked > 2:

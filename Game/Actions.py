@@ -31,7 +31,7 @@ def _getChar( ent ):
         return defaultCharacter
 
 def Move( actionName, actionSystem, ent, params ):
-    diff = _sqrt( params[ 0 ] ** 2 + params[ 1 ] ** 2 ) * MOVE_LENGTH
+    diff = _sqrt( params[ 0 ] ** 2 + params[ 1 ] ** 2 )
 
     pos = ent.getComponent( Components.Position )
     newPos = ( pos.x + params[ 0 ], pos.y + params[ 1 ] )
@@ -48,7 +48,7 @@ def Move( actionName, actionSystem, ent, params ):
     pos.y += params[ 1 ]
 
     char = _getChar( ent )
-    return diff / char.attributes[ 'movementSpeed' ]
+    return diff * char.attributes[ 'movementSpeed' ] * 10
 
 def Sleep( actionName, actionSystem, ent, params ):
     return params
