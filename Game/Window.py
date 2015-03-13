@@ -1,5 +1,6 @@
 import pygame
 import Util
+import GameData
 
 WindowParts = (
         pygame.image.load( 'gui/window_tl.png' ),
@@ -217,4 +218,45 @@ class Text( GuiPart ):
         return True
 
     def render( self, target ):
+        super().render( target )
+
+class MessageWindow( Window ):
+    def __init__( self, text, callback = None ):
+        self.text = text
+        self.definition = GameData.TypeDefinitions['message'][text]
+
+        self.callback = callback
+
+        curHeight = 0
+        curWidth = 300
+
+        self.lines = []
+        curFontSize = 10
+        for line in self.definition.lines:
+            if isinstance( line, str ):
+                _line = line
+
+                for counter in GameData.Counters:
+                    _line = _line.replace( '{%s}' % counter, str( GameData.Counters[counter] ) )
+
+                curFont = Util.LoadFont( 'MessageFont%d' % curFontSize, 'data/framd.ttf', curFontSize )
+                self.lines.append( Util.RenderFont( curFont, _line, ( 255, 255, 255 ) ) )
+
+                curHeight += self.lines[-1].get_height() + 2
+                curWidth = max( curWidth, self.lines[-1].get_width() )
+            else:
+                curFontSize = int( line )
+
+        super().__init__( curWidth + 40, curHeight + 70, 0, 0 )
+
+        curPos = 20
+        for n in self.lines:
+            self.surface.blit( n, ( ( self.width - n.get_width() ) / 2, curPos ) )
+            curPos += n.get_height() + 2
+
+        self.guiParts.append( Button( Util.LoadFont( 'ButtonFont' ), 'Continue', ( ( curWidth - 40 ) / 2, curPos ), ( 80, 15 ) ) )
+        self.guiParts[0].pressCallback = callback
+
+    def render( self, target ):
+        self.move( ( target.get_width() - self.width ) / 2, 40 )
         super().render( target )

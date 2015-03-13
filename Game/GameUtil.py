@@ -15,7 +15,7 @@ def LoadEntities( self ):
     def playerAction( __, _, wasBlocked, curTurn ):
         if self.playerAction is not None:
             char = GameData.Player.getComponent( GameComponents.Character )
-            if random.random() < 0.125:
+            if random.random() < 0.0625:
                 char.attributes[ 'Health' ] = min( char.attributes[ 'Health' ] + 1, char.attributes[ 'baseHealth' ] )
 
         ret = self.playerAction
@@ -100,6 +100,7 @@ def LoadEntities( self ):
                 if isPointValid( point ):
                     spawnsRemaining -= 1
                     ent = CreateEntity( random.choice( spawnables ) )
+                    ent.getComponent( GameComponents.Character ).onRemove = lambda ent: GameData.IncrementCounter( 'MonsterDeath' )
                     ent.addComponent( ECS.Components.Position( *point ) )
                     ent.active = False
                     self.world.addEntity( ent )
@@ -114,12 +115,12 @@ def LoadEntities( self ):
         curSurface = int( curRadius ** 2 * math.pi )
         circleNum += 1
 
-    i = -4
-    for n in [ 'enemy_slime', 'enemy_ranged_mook_2', 'enemy_ranged_mook_1' ]:
-        ent = CreateEntity( n )
-        ent.addComponent( ECS.Components.Position( int( GameData.TileCount[0] / 2 ) + i, int( GameData.TileCount[1] / 2 ) - 3 ) )
-        self.world.addEntity( ent )
-        i += 1
+    #i = -4
+    #for n in [ 'enemy_slime', 'enemy_ranged_mook_2', 'enemy_ranged_mook_1' ]:
+    #    ent = CreateEntity( n )
+    #    ent.addComponent( ECS.Components.Position( int( GameData.TileCount[0] / 2 ) + i, int( GameData.TileCount[1] / 2 ) - 3 ) )
+    #    self.world.addEntity( ent )
+    #    i += 1
 
 
 def HandleExplosions( self, explosionList ):
@@ -306,6 +307,7 @@ def ShowCombineCount( game, recipe, maxCraftable ):
         inv = GameData.PlayerInventory.inventory
 
         for i in range( finalCount ):
+            GameData.IncrementCounter( 'SpecialCount' )
             if GameData.PlayerInventory.addItem( GameData.TypeDefinitions['item'][recipe.result], 1 ) == 0:
                 notDropped = dict( [ (n,1) for n in recipe.items ] )
 

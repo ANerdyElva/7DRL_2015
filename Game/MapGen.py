@@ -131,6 +131,7 @@ def postInit( self, I, _buffer ):
         curSurface = int( curRadius ** 2 * math.pi )
         circleNum += 1
 
+    print( curRadius )
     curRadius += 1
     curRadiusSquared = curRadius ** 2
     for x in range( self.width ):

@@ -94,6 +94,7 @@ class Character( ECS.Component ):
     def __init__( self, definition ):
         self.definition = definition
         self.attributes = {}
+        self.onRemove = None
 
         data = self.definition.getData()
         for key in data:
@@ -113,6 +114,8 @@ class Character( ECS.Component ):
         self.attributes[ 'Health' ] -= count
         if self.attributes[ 'Health' ] < 0:
             self.entity.world.removeEntity( self.entity )
+
+            self.onRemove( self )
 
             if self.definition.has( 'drops' ):
                 for n in self.definition.drops:
