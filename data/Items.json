@@ -3,17 +3,19 @@
     { "type": null, "name": "entity" },
     { "type": null, "name": "recipe" },
 
+    { "type": "entity", "name": "explosive", "components": { "explosiveRenderer": [] } },
+
     { "type": "recipe", "name": "recipe_explosive_sticky", "items": [ "item_stickygoo", "item_explosive" ], "result": "item_explosive_sticky" },
 
     { "type": "item", "name": "item_stickygoo", "displayname": "Sticky goo", "image": "img_giant_amoeba" },
+    { "type": "image", "name": "img_giant_amoeba", "file": "data/entity.png", "atlasX": 3, "atlasY": 0, "key": "giant_amoeba" },
 
     { "type": "item", "name": "item_explosive", "displayname": "Explosive", "dropsAs": "ent_explosive", "use": "drop", "image": "img_explosive" },
+    { "type": "explosive", "name": "ent_explosive", "explosion": { "rayStrength": 20, "rayCount": 64, "delay": 150 }, "image": "img_explosive", "components": { "proximity": 2 } },
+
     { "type": "item", "name": "item_explosive_sticky", "displayname": "Sticky explosive", "dropsAs": "ent_explosive_sticky", "use": "throw", "image": "img_explosive" },
-    { "type": "item", "name": "item_explosive_special", "displayname": "Big Golden Explosive", "dropsAs": "ent_explosive_special", "use": "drop", "image": "img_explosive_special" },
+    { "type": "explosive", "name": "ent_explosive_sticky", "explosion": { "rayStrength": 15, "rayCount": 64, "delay": 100 }, "components": { "sticky": 2.5 }, "image": "img_explosive_timed" },
 
-    { "type": "entity", "name": "ent_explosive", "explosion": { "rayStrength": 20, "rayCount": 64, "delay": 100 }, "image": "img_explosive" },
-    { "type": "entity", "name": "ent_explosive_sticky", "explosion": { "rayStrength": 15, "rayCount": 64, "delay": 50 }, "components": { "sticky": [] }, "image": "img_explosive_timed" },
-    { "type": "entity", "name": "ent_explosive_special", "explosion": { "delay": 200 }, "components": { "specialbomb": [], "item": [ "item_explosive_special" ]  }, "image": "img_explosive_special" },
-
-    { "type": "image", "name": "img_giant_amoeba", "file": "data/entity.png", "atlasX": 3, "atlasY": 0, "key": "giant_amoeba" }
+    { "type": "item", "name": "item_explosive_special", "displayname": "Big Golden Explosive", "dropsAs": "ent_explosive_special", "use": "drop", "image": "img_explosive_special", "indestructible": true },
+    { "type": "explosive", "name": "ent_explosive_special", "explosion": { "delay": 200 }, "components": { "specialbomb": [], "item": [ "item_explosive_special" ]  }, "image": "img_explosive_special" }
 ]

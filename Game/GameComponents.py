@@ -23,6 +23,24 @@ class Explosive( ECS.Component ):
         self.isFiring = True
         return 1000
 
+class BombRenderer( ECS.Components.Renderer ):
+    def __init__( self, definition ):
+        img = GameData.TypeDefinitions[ 'image' ][ definition.image ]
+        super().__init__( GameData.AtlasMap[ img.file ], img.key )
+
+    def _setEntity( self, ent ):
+        super()._setEntity( ent )
+
+        self.ai = ent.getComponent( TurnTaker ).ai
+
+
+    def render( self, target, screenPos ):
+        fillPart = self.ai.bombAge / self.ai.explodeDelay
+
+        target.fill( ( 255, 255, 0 ), pygame.Rect( screenPos[0], screenPos[1] - 2, GameData.TileSize[0], 5 ) )
+        target.fill( ( 248, 202, 0 ), pygame.Rect( screenPos[0], screenPos[1] - 2, ( GameData.TileSize[0] * fillPart ), 5 ) )
+        super().render( target, screenPos )
+
 class SpecialExplosive( Explosive ):
     def __init__( self ):
         super().__init__( 64, 30 )
@@ -169,7 +187,7 @@ class CharacterRenderer( ECS.Components.Renderer ):
     def render( self, target, screenPos ):
         fillPart = self.character.attributes[ 'Health' ] / self.character.attributes[ 'baseHealth' ]
 
-        target.fill( ( 177, 22, 35 ), pygame.Rect( screenPos[0], screenPos[1] - 2, GameData.TileSize[0], 5 ) )
+        target.fill( ( 137, 22, 35 ), pygame.Rect( screenPos[0], screenPos[1] - 2, GameData.TileSize[0], 5 ) )
         target.fill( ( 250, 42, 0 ), pygame.Rect( screenPos[0], screenPos[1] - 2, ( GameData.TileSize[0] * fillPart ), 5 ) )
 
         super().render( target, screenPos )
@@ -202,14 +220,14 @@ class TurnTaker( ECS.Components.Component ):
             self.randomRange = 0
 
 class StickyBomb( ECS.Components.Component ):
-    def __init__( self ):
-        self.stickedOn = False
+    def __init__( self, distance ):
+        self.maxDistanceSquared = distance ** 2 
 
     def bombThink( self, ent, curTurn, age ):
         myPos = ent.getComponent( ECS.Components.Position )
 
         closest = None
-        closestDist = 6
+        closestDist = self.maxDistanceSquared
 
         for otherEnt in ent.world.getEntityByComponent( Character, ECS.Components.Position ):
             if otherEnt.isPlayer:
@@ -254,9 +272,12 @@ class ProximityBomb( ECS.Components.Component ):
 class BombAi():
     def __init__( self, explodeDelay ):
         self.explodeDelay = explodeDelay
+        self.bombAge = 0
 
     def __call__( self, turnComponent, ent, wasBlocked, curTurn ):
         bombAge = curTurn - ent.firstTurn
+        self.bombAge = bombAge
+
         if bombAge > self.explodeDelay:
             return Action( ent, 'explode', None )
         else:
