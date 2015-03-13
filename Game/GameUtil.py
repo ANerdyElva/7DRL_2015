@@ -284,6 +284,7 @@ def CreateEntity( self, definition ):
 def ShowCombineCount( game, recipe, maxCraftable ):
     game.actionWindow.guiParts = []
     count = 1
+    print( recipe )
 
     def addButton( text, cb ):
         nonlocal count
@@ -316,8 +317,8 @@ def ShowCombineCount( game, recipe, maxCraftable ):
 
 
     addButton( 'Craft 1', lambda *_: craft( 1 ) )
-    addButton( 'Craft %d' % int( maxCraftable / 2 ), lambda *_: craft( int( maxCraftable / 2 )) )
-    addButton( 'Craft %d' % maxCraftable, lambda *_: craft( maxCraftable ) )
+    if maxCraftable > 4: addButton( 'Craft %d' % int( maxCraftable / 2 ), lambda *_: craft( int( maxCraftable / 2 )) )
+    if maxCraftable > 2: addButton( 'Craft %d' % maxCraftable, lambda *_: craft( maxCraftable ) )
 
 
 def ShowCombineButton( game ):
@@ -360,7 +361,12 @@ def ShowCombineButton( game ):
         if maxCraftable > maxCount:
             maxCraftable = maxCount
         if maxCraftable > 0:
-            addButton( '%s (max %d)' % ( recipeResult.displayname, maxCraftable ), lambda *_: ShowCombineCount( game, recipe, maxCraftable ) )
+            def getButtonCb( recipe, maxCraftable ):
+                def buttonCb( *_ ):
+                    return ShowCombineCount( game, recipe, maxCraftable )
+                return buttonCb
+
+            addButton( '%s (max %d)' % ( recipeResult.displayname, maxCraftable ), getButtonCb( recipe, maxCraftable ) )
 
 fontInventoryCount = LoadFont( 'InventoryCount', 'data/framd.ttf', 8 )
 def UpdateInventory( game ):
