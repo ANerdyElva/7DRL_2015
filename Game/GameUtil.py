@@ -7,15 +7,10 @@ import ECS
 import Cheats
 import GameComponents
 import GameData
-from ActionSystem import ActionSystem
 import Actions
 import Window
 
 def LoadEntities( self ):
-    self.world = ECS.World()
-    self.actionSystem = ActionSystem( self.world, Actions.ActionMap )
-    self.world.addSystem( self.actionSystem )
-
     self.playerAction = None
     def playerAction( __, _, wasBlocked, curTurn ):
         if self.playerAction is not None:
@@ -47,7 +42,7 @@ def LoadEntities( self ):
     self.world.addEntity( GameData.Player )
 
     #Drop key in room
-    key = CreateEntity( self, 'item_explosive_special' )
+    key = CreateEntity( 'item_explosive_special' )
     key.addComponent( ECS.Components.Position( int( GameData.TileCount[0] / 2 ), int( GameData.TileCount[1] / 2 ) + 3 ) )
     self.world.addEntity( key )
 
@@ -94,7 +89,7 @@ def LoadEntities( self ):
                 point = getPointInsection( curSection )
 
                 if isPointValid( point ):
-                    key = CreateEntity( self, 'item_explosive_special' )
+                    key = CreateEntity( 'item_explosive_special' )
                     key.addComponent( ECS.Components.Position( *point ) )
                     self.world.addEntity( key )
                     break
@@ -104,7 +99,7 @@ def LoadEntities( self ):
 
                 if isPointValid( point ):
                     spawnsRemaining -= 1
-                    ent = CreateEntity( self, random.choice( spawnables ) )
+                    ent = CreateEntity( random.choice( spawnables ) )
                     ent.addComponent( ECS.Components.Position( *point ) )
                     ent.active = False
                     self.world.addEntity( ent )
@@ -118,6 +113,13 @@ def LoadEntities( self ):
         curRadius = nextRadius
         curSurface = int( curRadius ** 2 * math.pi )
         circleNum += 1
+
+    i = -4
+    for n in [ 'enemy_slime', 'enemy_ranged_mook_2', 'enemy_ranged_mook_1' ]:
+        ent = CreateEntity( n )
+        ent.addComponent( ECS.Components.Position( int( GameData.TileCount[0] / 2 ) + i, int( GameData.TileCount[1] / 2 ) - 3 ) )
+        self.world.addEntity( ent )
+        i += 1
 
 
 def HandleExplosions( self, explosionList ):
@@ -242,7 +244,7 @@ CreateEntityComponentMapping = {
         'explosiveRenderer': ( lambda definition, _: GameComponents.BombRenderer( definition ) ),
         }
 
-def CreateEntity( self, definition ):
+def CreateEntity( definition ):
     if isinstance( definition, str ):
         definition = GameData.TypeDefinitions[''][ definition ]
 
@@ -280,6 +282,7 @@ def CreateEntity( self, definition ):
         ent.addComponent( ECS.Components.Renderer( GameData.AtlasMap[ img.file ], img.key ) )
 
     return ent
+
 
 def ShowCombineCount( game, recipe, maxCraftable ):
     game.actionWindow.guiParts = []

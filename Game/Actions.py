@@ -1,5 +1,4 @@
 from ECS import Components
-from GameComponents import Character
 
 import GameComponents
 import ECS
@@ -12,7 +11,7 @@ import GameData
 MOVE_LENGTH = 100
 MIN_TURN_LENGTH = 1
 
-defaultCharacter = Character( GameData.TypeDefinitions['']['enemy_base'] )
+defaultCharacter = None
 
 def _sqrt( i ):
     if i == 2:
@@ -23,11 +22,14 @@ def _sqrt( i ):
         return math.sqrt( i )
 
 def _getChar( ent ):
-    ret = ent.getComponent( Character )
+    ret = ent.getComponent( GameComponents.Character )
 
     if ret is not None:
         return ret
     else:
+        if defaultCharacter is None:
+            defaultCharacter = GameComponents.Character( GameData.TypeDefinitions['']['enemy_base'] )
+
         return defaultCharacter
 
 def Move( actionName, actionSystem, ent, params ):
