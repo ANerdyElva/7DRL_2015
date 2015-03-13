@@ -17,7 +17,9 @@
         "components": { "character": [], "baseAI": [] }
     },
 
-    { "type": "enemy_base", "name": "enemy_melee_mook_1", "spawnCluster": 3, "baseHealth": 5, "attackRange": 4, "movementSpeed": 6, "damage": 4, "damageRange": 3, "image": "img_centaur_darkgrey_m" },
-    { "type": "enemy_base", "name": "enemy_ranged_mook_1", "spawnCluster": 1, "baseHealth": 5, "attackRange": 4, "damage": 2, "damageRange": 6, "damageRest": 60, "image": "img_draconian_f" },
-    { "type": "enemy_base", "name": "enemy_ranged_mook_2", "spawnCluster": 2, "baseHealth": 5, "attackRange": 4, "damage": 3, "damageRange": 5, "damageRange": 5, "image": "img_kenku_winged_f" }
+    { "type": "enemy_base", "name": "enemy_melee_mook_1", "spawnCluster": 3, "baseHealth": 5, "attackRange": 2, "movementSpeed": 6, "damage": 4, "image": "img_centaur_darkgrey_m" },
+    { "type": "enemy_base", "name": "enemy_ranged_mook_1", "spawnCluster": 1, "baseHealth": 5, "attackRange": 5, "damage": 2, "damageRest": 60, "image": "img_draconian_f" },
+    { "type": "enemy_base", "name": "enemy_ranged_mook_2", "spawnCluster": 2, "baseHealth": 5, "attackRange": 4, "damage": 3, "image": "img_kenku_winged_f", "drops": [ "item_feather" ] },
+
+    { "type": "enemy_base", "name": "enemy_slime", "spawnCluster": 2, "baseHealth": 5, "attackRange": 2, "movementSpeed": 7, "damage": 3, "image": "img_acid_blob", "drops": [ "item_stickygoo" ] }
 ]
