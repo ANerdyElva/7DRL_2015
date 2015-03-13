@@ -10,6 +10,7 @@ class Entity():
 
         self.id = Entity.nextId
         self.passable = True
+        self.active = True
 
         Entity.nextId += 1
 

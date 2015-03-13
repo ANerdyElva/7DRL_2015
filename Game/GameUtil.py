@@ -51,7 +51,69 @@ def LoadEntities( self ):
     key.addComponent( ECS.Components.Position( int( GameData.TileCount[0] / 2 ), int( GameData.TileCount[1] / 2 ) + 3 ) )
     self.world.addEntity( key )
 
-    #Spawn some enemies (test)
+    #Spawn some enemies
+    spawnables = []
+    for n in GameData.TypeDefinitions['enemy_base']:
+        if n == 'enemy_base':
+            continue
+
+        for count in range( GameData.TypeDefinitions['enemy_base'][n].spawnChance ):
+            spawnables.append( n )
+
+    curSurface = ( GameData.MapGen_CenterRoom_Size[0] * 2 ) * ( GameData.MapGen_CenterRoom_Size[1] * 2 )
+
+    curRadius = -1
+
+    def setFixedWall( x, y ):
+        _buffer[ I( int( x ), int( y ) ) ] = TILE_FIXED_WALL
+
+    circleNum = 0
+    while curRadius < GameData.MapGen_MaxCircleRadius:
+        sectionCount = max( circleNum * GameData.MapGen_CircleSectionsPerLayer, 1 )
+        nextSurface = curSurface + ( GameData.MapGen_BaseSurface * sectionCount )
+
+        nextRadius = int( math.sqrt( nextSurface / math.pi ) )
+
+        sectionAngle = math.pi * 2 / sectionCount
+
+        def getPointInsection( curSection ):
+            r = random.randrange( curRadius, nextRadius )
+            angle = ( curSection + random.random() ) * sectionAngle
+
+            return ( int( math.sin( angle ) * r + GameData.CenterPos[0] ), int( math.cos( angle ) * r + GameData.CenterPos[1] ) )
+
+        for curSection in range( sectionCount ):
+            spawnsRemaining = circleNum * GameData.MapGen_MobsPerLevelIncrease
+
+            while True:
+                point = getPointInsection( curSection )
+
+                if GameData.Map.get( *point ) == TILE_AIR:
+                    key = CreateEntity( self, 'item_explosive_special' )
+                    key.addComponent( ECS.Components.Position( *point ) )
+                    self.world.addEntity( key )
+                    break
+
+            for attempt in range( int( spawnsRemaining * 2.5 ) ):
+                point = getPointInsection( curSection )
+
+                if GameData.Map.get( *point ) == TILE_AIR:
+                    spawnsRemaining -= 1
+                    ent = CreateEntity( self, spawnables[ circleNum % len( spawnables ) ] )
+                    ent.addComponent( ECS.Components.Position( *point ) )
+                    ent.active = False
+                    self.world.addEntity( ent )
+
+
+                if spawnsRemaining <= 0:
+                    break
+
+
+
+        curRadius = nextRadius
+        curSurface = int( curRadius ** 2 * math.pi )
+        circleNum += 1
+
     i = -4
     #for n in [ 'enemy_ranged_mook_1', 'enemy_ranged_mook_2', 'enemy_ranged_mook_3' ]:
     for n in [ 'enemy_ranged_mook_1' ]:

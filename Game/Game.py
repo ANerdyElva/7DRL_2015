@@ -12,6 +12,7 @@ import GameComponents
 import GameData
 import GameUtil
 import Window
+import Math2D
 from GameState import GameState
 
 
@@ -36,6 +37,7 @@ class Game( GameState ):
             'Combine', ( 20 , 30 ), ( 260, 25 ) ) )
 
         self.pickupWindow = Window.Window( 300, 200, self.screen.get_width() - 300, self.screen.get_height() - 200 )
+        self.lastMove = pygame.time.get_ticks()
 
         ###########################################################
         # Init the map
@@ -50,6 +52,17 @@ class Game( GameState ):
 
         if self.playerAction is not None:
             self.actionSystem.process( 500 )
+            playerPos = Math2D.Point( GameData.PlayerPosition )
+            if self.playerAction is None:
+                for ent in self.world.getEntityByComponent( ECS.Components.Position, GameComponents.TurnTaker ):
+                    if ( Math2D.Point( ent.getComponent( ECS.Components.Position ) ) - playerPos ).squaredLength < 20 ** 2:
+                        if not ent.active:
+                            ent.active = True
+                            ent._nextTurn = ent.getComponent( GameComponents.TurnTaker ).timeTillNextTurn + self.actionSystem.curTurn
+                    else:
+                        ent.active = False
+
+                self.actionSystem.updateProcessList()
 
         itemsAtCurPos = [ n for n in [ n.getComponent( GameComponents.Item ) for n in self.world.getEntitiesAtPos( GameData.PlayerPosition ) ] if n is not None ]
         if len( itemsAtCurPos ) > 0:
@@ -104,7 +117,7 @@ class Game( GameState ):
         for ent in self.world.getEntityByComponent( ECS.Components.Position, ECS.Components.Renderer ):
             pos = ent.getComponent( ECS.Components.Position )
 
-            if GameData.Map.isVisible( pos.x, pos.y ):
+            if Cheats.ViewAll or GameData.Map.isVisible( pos.x, pos.y ):
                 pos = ( ( pos.x - self.camX ) * GameData.TileSize[0], ( pos.y - self.camY ) * GameData.TileSize[1] )
                 ent.getComponent( ECS.Components.Renderer ).render( self.screen, pos )
 
@@ -158,14 +171,6 @@ class Game( GameState ):
                     Cheats.Flying = not Cheats.Flying
                 elif event.key == pygame.K_F4 and Cheats.KeyboardCheats:
                     GameData.PlayerInventory.addItem( GameData.TypeDefinitions['item']['item_stickygoo'], 10 )
-                elif event.key == pygame.K_w:
-                    self.playerAction = GameComponents.Action( GameData.Player, 'move', ( 0, -1 ) )
-                elif event.key == pygame.K_s:
-                    self.playerAction = GameComponents.Action( GameData.Player, 'move', ( 0, 1 ) )
-                elif event.key == pygame.K_a:
-                    self.playerAction = GameComponents.Action( GameData.Player, 'move', ( -1, 0 ) )
-                elif event.key == pygame.K_d:
-                    self.playerAction = GameComponents.Action( GameData.Player, 'move', ( 1, 0 ) )
                 elif event.key in ( pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5, pygame.K_6, pygame.K_7, pygame.K_8 ):
                     slot = ( event.key - pygame.K_0 ) - 1
                     self.inventorySlot = slot
@@ -173,6 +178,25 @@ class Game( GameState ):
                     GameUtil.UpdateInventory( self )
                 elif event.key == pygame.K_e:
                     self.dropItem()
+
+        if not Cheats.Flying and ( pygame.time.get_ticks() - self.lastMove > 100 ) and self.playerAction is None:
+            curKeys = pygame.key.get_pressed()
+
+            move = [ 0, 0 ]
+
+            if curKeys[pygame.K_w]:
+                move[1] = -1
+            if curKeys[pygame.K_s]:
+                move[1] = 1
+            if curKeys[pygame.K_a]:
+                move[0] = -1
+            if curKeys[pygame.K_d]:
+                move[0] = 1
+
+            if move[0] != 0 or move[1] != 0:
+                self.playerAction = GameComponents.Action( GameData.Player, 'move', tuple( move ) )
+                self.lastMove = pygame.time.get_ticks()
+
 
         if Cheats.Flying:
             curKeys = pygame.key.get_pressed()

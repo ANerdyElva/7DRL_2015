@@ -34,10 +34,11 @@ class BombRenderer( ECS.Components.Renderer ):
         super()._setEntity( ent )
 
         self.ai = ent.getComponent( TurnTaker ).ai
+        ent.bombAge = 0
 
 
     def render( self, target, screenPos ):
-        fillPart = self.ai.bombAge / self.ai.explodeDelay
+        fillPart = self.entity.bombAge / self.ai.explodeDelay
 
         target.fill( ( 255, 255, 0 ), pygame.Rect( screenPos[0], screenPos[1] - 2, GameData.TileSize[0], 5 ) )
         target.fill( ( 248, 202, 0 ), pygame.Rect( screenPos[0], screenPos[1] - 2, ( GameData.TileSize[0] * fillPart ), 5 ) )
@@ -274,11 +275,10 @@ class TurnTaker( ECS.Components.Component ):
 class BombAi():
     def __init__( self, explodeDelay ):
         self.explodeDelay = explodeDelay
-        self.bombAge = 0
 
     def __call__( self, turnComponent, ent, wasBlocked, curTurn ):
         bombAge = curTurn - ent.firstTurn
-        self.bombAge = bombAge
+        ent.bombAge = bombAge
 
         if bombAge > self.explodeDelay:
             return Action( ent, 'explode', None )
@@ -304,7 +304,7 @@ class TurnTakerAi():
 
         if ( targetPos - pos ).squaredLength < 8:
             return Action( ent, 'attack', turnComponent.target )
-        elif ( targetPos - pos ).squaredLength < 120 ** 2:
+        elif ( targetPos - pos ).squaredLength < 20 ** 2:
             if wasBlocked > 2:
                 return Action( ent, 'sleep', random.randrange( 50, 200 ) )
             elif wasBlocked > 0:
@@ -321,6 +321,6 @@ class TurnTakerAi():
                     move = ( nextPoint[0] - _x, nextPoint[1] - _y )
                     return Action( ent, 'move', move )
                 else:
-                    turnTaker.target = None
+                    turnComponent.target = None
 
         return Action( ent, 'sleep', random.randrange( 400, 600 ) )

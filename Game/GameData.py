@@ -10,6 +10,13 @@ TileCount = ( 500, 500 )
 CenterPos = [ TileCount[0] / 2, TileCount[1] / 2 ]
 IsGameRunning = True
 
+MapGen_BaseSurface = 50 * 50
+MapGen_MaxCircleRadius = 200
+MapGen_CircleSectionsPerLayer = 4
+MapGen_MobsPerLevelIncrease = 10
+
+MapGen_CenterRoom_Size = ( 5, 5 )
+
 #Global variables
 Screen = None
 Map = None #Initialized in init.py

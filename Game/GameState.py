@@ -28,7 +28,7 @@ class GameState:
             average = ( average * 4  + ( end - start ) ) / 5
 
             frameNum += 1
-            if frameNum % 10:
+            if frameNum % 10 == 0:
                 pygame.display.set_caption( "That's okay. You've got explosions. [%s] [%d]" % ( self.__class__.__name__, 1000.0 / average ) )
 
             if Cheats.QuitGame and frameNum > 50:

@@ -18,11 +18,14 @@ class ActionSystem():
         self.toProcessList = []
 
         for ent in entities:
+            if not ent.active:
+                continue
+
             turnTaker = ent.getComponent( TurnTaker )
 
             if not hasattr( ent, '_nextTurn' ):
                 ent._nextTurn = turnTaker.timeTillNextTurn + self.curTurn
-            if not hasattr( turnTaker, 'firstTurn' ):
+            if not hasattr( ent, 'firstTurn' ):
                 ent.firstTurn = self.curTurn
 
             self._insertEnt( ent )
