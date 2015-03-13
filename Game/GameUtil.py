@@ -18,6 +18,11 @@ def LoadEntities( self ):
 
     self.playerAction = None
     def playerAction( __, _, wasBlocked, curTurn ):
+        if self.playerAction is not None:
+            char = GameData.Player.getComponent( GameComponents.Character )
+            if random.random() < 0.125:
+                char.attributes[ 'Health' ] = min( char.attributes[ 'Health' ] + 1, char.attributes[ 'baseHealth' ] )
+
         ret = self.playerAction
         self.playerAction = None
         return ret

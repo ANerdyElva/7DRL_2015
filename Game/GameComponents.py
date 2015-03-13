@@ -3,6 +3,8 @@ import GameData
 import random
 from Util.TileTypes import *
 import pygame
+import Math2D
+import math
 
 class Explosive( ECS.Component ):
     def __init__( self, rayPerSquare, strength ):
@@ -201,27 +203,9 @@ class Action():
     def __str__( self ):
         return '[%s@Ent.%d %s (%s)]' % ( type(self).__name__, self.entity.id, self.name, self.params )
 
-class TurnTaker( ECS.Components.Component ):
-    def __init__( self, ai = None, timeTillNextTurn = 0 ):
-        self.ai = ai
-        self.timeTillNextTurn = timeTillNextTurn
-        self.wasBlocked = 0
-        self.target = None
-
-    def getNextTurn( self, curTurn ):
-        if self.ai is not None:
-            ret = self.ai( self, self.entity, self.wasBlocked, curTurn )
-            return ret
-
-    def finalize( self ):
-        if self.entity.hasComponent( Character ):
-            self.randomRange = self.entity.getComponent( Character ).definition.randomRange
-        else:
-            self.randomRange = 0
-
 class StickyBomb( ECS.Components.Component ):
     def __init__( self, distance ):
-        self.maxDistanceSquared = distance ** 2 
+        self.maxDistanceSquared = distance ** 2
 
     def bombThink( self, ent, curTurn, age ):
         myPos = ent.getComponent( ECS.Components.Position )
@@ -268,6 +252,24 @@ class ProximityBomb( ECS.Components.Component ):
             if distanceSquared < self.radiusSquared:
                 return Action( ent, 'explode', None )
 
+class TurnTaker( ECS.Components.Component ):
+    def __init__( self, ai = None, timeTillNextTurn = 0 ):
+        self.ai = ai
+        self.timeTillNextTurn = timeTillNextTurn
+        self.wasBlocked = 0
+        self.target = None
+
+    def getNextTurn( self, curTurn ):
+        if self.ai is not None:
+            ret = self.ai( self, self.entity, self.wasBlocked, curTurn )
+            return ret
+
+    def finalize( self ):
+        if self.entity.hasComponent( Character ):
+            self.randomRange = self.entity.getComponent( Character ).definition.randomRange
+        else:
+            self.randomRange = 0
+
 
 class BombAi():
     def __init__( self, explodeDelay ):
@@ -293,10 +295,12 @@ _directions = ( ( 1, 0 ), ( 0, 1 ), ( -1, 0 ), ( 0, -1 ) )
 class TurnTakerAi():
     def __call__( self, turnComponent, ent, wasBlocked, curTurn ):
         if turnComponent.target is None:
+            if random.random() < 0.2:
+                return Action( ent, 'findEnemy', turnComponent )
             return Action( ent, 'move', random.choice( _directions ) )
 
-        pos = Point( ent.getComponent( ECS.Components.Position ) )
-        targetPos = Point( turnComponent.target.getComponent( ECS.Components.Position ) )
+        pos = Math2D.Point( ent.getComponent( ECS.Components.Position ) )
+        targetPos = Math2D.Point( turnComponent.target.getComponent( ECS.Components.Position ) )
 
         if ( targetPos - pos ).squaredLength < 8:
             return Action( ent, 'attack', turnComponent.target )
@@ -306,15 +310,17 @@ class TurnTakerAi():
             elif wasBlocked > 0:
                 return Action( ent, 'move', random.choice( _directions ) )
             else:
-                path = ent.world._map.findPath( pos, targetPos )
+                path = GameData.Map.findPath( pos, targetPos )
 
                 if path is not None and len( path ) > 1:
                     nextPoint = path[ -2 ]
 
                     _x = int(math.floor(pos.x))
-                    _y = int(math.floor(pos.y)) 
+                    _y = int(math.floor(pos.y))
 
                     move = ( nextPoint[0] - _x, nextPoint[1] - _y )
                     return Action( ent, 'move', move )
+                else:
+                    turnTaker.target = None
 
         return Action( ent, 'sleep', random.randrange( 400, 600 ) )
