@@ -22,6 +22,8 @@ class ActionSystem():
 
             if not hasattr( ent, '_nextTurn' ):
                 ent._nextTurn = turnTaker.timeTillNextTurn + self.curTurn
+            if not hasattr( turnTaker, 'firstTurn' ):
+                ent.firstTurn = self.curTurn
 
             self._insertEnt( ent )
 
@@ -74,7 +76,7 @@ class ActionSystem():
             self._insertEnt( firstEnt )
             return True
 
-        action = turnTaker.getNextTurn()
+        action = turnTaker.getNextTurn( self.curTurn )
         if action is None:
             self._insertEnt( firstEnt )
             return False

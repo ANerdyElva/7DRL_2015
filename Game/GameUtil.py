@@ -17,7 +17,7 @@ def LoadEntities( self ):
     self.world.addSystem( self.actionSystem )
 
     self.playerAction = None
-    def playerAction( __, _, wasBlocked ):
+    def playerAction( __, _, wasBlocked, curTurn ):
         ret = self.playerAction
         self.playerAction = None
         return ret
@@ -25,8 +25,9 @@ def LoadEntities( self ):
     GameData.Player = ECS.Entity()
     GameData.Player.addComponent( ECS.Components.Position( int( GameData.CenterPos[ 0 ] ), int( GameData.CenterPos[1] ) ) )
     GameData.Player.addComponent( GameComponents.Character( GameData.TypeDefinitions['enemy']['player'] ) )
-    GameData.Player.addComponent( GameComponents.CharacterRenderer( GameData.Player.getComponent( GameComponents.Character ) ) )
+    GameData.Player.addComponent( GameComponents.CharacterRenderer( GameData.TypeDefinitions['enemy']['player'] ) )
     GameData.Player.addComponent( GameComponents.TurnTaker( playerAction ) )
+    GameData.Player.isPlayer = True
 
     GameData.PlayerInventory = GameComponents.Inventory( 8 ) 
     GameData.Player.addComponent( GameData.PlayerInventory )
@@ -47,7 +48,8 @@ def LoadEntities( self ):
 
     #Spawn some enemies (test)
     i = -4
-    for n in [ 'enemy_ranged_mook_1', 'enemy_ranged_mook_2', 'enemy_ranged_mook_3' ]:
+    #for n in [ 'enemy_ranged_mook_1', 'enemy_ranged_mook_2', 'enemy_ranged_mook_3' ]:
+    for n in [ 'enemy_ranged_mook_1' ]:
         ent = CreateEntity( self, n )
         ent.addComponent( ECS.Components.Position( int( GameData.TileCount[0] / 2 ) + i, int( GameData.TileCount[1] / 2 ) - 3 ) )
         self.world.addEntity( ent )
@@ -77,7 +79,6 @@ def HandleExplosions( self, explosionList ):
 
         explosionPosition = explosionEnt.getComponent( ECS.Components.Position )
         explosionPosition = ( explosionPosition.x, explosionPosition.y )
-        print( explosionPosition )
 
         def handleRay( targetX, targetY ):
             curExplosionStrength = explosive.strength
@@ -170,8 +171,10 @@ def HandleExplosions( self, explosionList ):
 CreateEntityComponentMapping = {
         'item': ( lambda  definition, args: GameComponents.Item( *args ) ),
         'specialbomb': ( lambda  definition, args: GameComponents.SpecialExplosive( *args ) ),
-        'character': ( lambda  definition, _: GameComponents.Character(  definition ) ),
-        'baseAI': ( lambda  definition, _: GameComponents.TurnTaker( ai = GameComponents.TurnTakerAi() ) )
+        'character': ( lambda  definition, _: ( GameComponents.Character( definition ), GameComponents.CharacterRenderer( definition ) ) ),
+        'baseAI': ( lambda  definition, _: GameComponents.TurnTaker( ai = GameComponents.TurnTakerAi() ) ),
+        'proximity': ( lambda definition, radius: GameComponents.ProximityBomb( radius ) ),
+        'sticky': ( lambda definition, _: GameComponents.StickyBomb() ),
         }
 
 def CreateEntity( self, definition ):
@@ -183,17 +186,12 @@ def CreateEntity( self, definition ):
 
     ent = ECS.Entity()
 
-    #TODO Make a nice factory set up out of this
-    if definition.has( 'image' ):
-        img = GameData.TypeDefinitions['image'][ definition.image ]
-        ent.addComponent( ECS.Components.Renderer( GameData.AtlasMap[ img.file ], img.key ) )
-
     if definition.has( 'explosion_rayStrength' ) and definition.has( 'explosion_rayCount' ):
         exp = GameComponents.Explosive( int( definition.explosion_rayCount / 4 ), definition.explosion_rayStrength )
         ent.addComponent( exp )
 
     if definition.has( 'explosion_delay' ):
-        ent.addComponent( GameComponents.TurnTaker( ai = lambda *_: GameComponents.Action( ent, 'explode', None ), timeTillNextTurn = definition.explosion_delay ) )
+        ent.addComponent( GameComponents.TurnTaker( ai = GameComponents.BombAi( definition.explosion_delay ) ) )
 
     if 'item' in definition.baseType:
         ent.addComponent( GameComponents.Item( definition ) )
@@ -201,9 +199,21 @@ def CreateEntity( self, definition ):
     if definition.has( 'components' ):
         try:
             for comp in definition.components:
-                ent.addComponent( CreateEntityComponentMapping[ comp ]( definition, definition.components[ comp ] ) )
-        except Exception as e:
-            print( 'Exception: ' + str( e ) )
+                factory = CreateEntityComponentMapping[ comp ]
+                createComps = factory( definition, definition.components[ comp ] )
+                try:
+                    for createComp in createComps:
+                        ent.addComponent( createComp )
+                except TypeError:
+                    ent.addComponent( createComps )
+        except KeyError as e:
+            print( 'Exception: ' + repr( e ) )
+
+    #TODO Make a nice factory set up out of this
+    if definition.has( 'image' ) and not ent.hasComponent( ECS.Components.Renderer ):
+        img = GameData.TypeDefinitions['image'][ definition.image ]
+        ent.addComponent( ECS.Components.Renderer( GameData.AtlasMap[ img.file ], img.key ) )
+
     return ent
 
 def ShowCombineCount( game, recipe, maxCraftable ):
@@ -287,7 +297,7 @@ def ShowCombineButton( game ):
         if maxCraftable > 0:
             addButton( '%s (max %d)' % ( recipeResult.displayname, maxCraftable ), lambda *_: ShowCombineCount( game, recipe, maxCraftable ) )
 
-fontInventoryCount = LoadFont( 'InventoryCount', 'data/segoesc.ttf', 8 )
+fontInventoryCount = LoadFont( 'InventoryCount', 'data/framd.ttf', 8 )
 def UpdateInventory( game ):
     inventory = GameData.PlayerInventory
     selected = game.inventorySlot
@@ -302,7 +312,6 @@ def UpdateInventory( game ):
 
                 render = RenderFont( fontInventoryCount, str( item[1] ), ( 255, 255, 255 ) )
                 screen.blit( render, ( pos[0] + 6, pos[1] + 44 - render.get_height() ) )
-
 
             game.hotbar.updateSlot( i, renderSlot, 2 if i == selected else 1 )
         else:
@@ -349,7 +358,7 @@ def UpdateInventory( game ):
                 addButton( 'Drop explosive (E)', lambda *_: game.dropItem() )
 
         curCount = inventory.inventory[selected][1]
-        if curCount < 99:
+        if curCount < 99 and not ( inventory.inventory[selected][0].has( 'indestructible' ) and inventory.inventory[selected][0].indestructible ):
             addButton( 'Destroy item (1)', lambda *_: inventory.dropItem( selected, 1 ) )
 
             if curCount > 10:
