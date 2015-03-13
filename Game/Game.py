@@ -6,7 +6,6 @@ from MapGen import *
 
 from ActionSystem import ActionSystem
 import Actions
-import Characters
 import Cheats
 import ECS
 import GameComponents

@@ -1,4 +1,5 @@
 import pygame
+import Cheats
 
 class Atlas:
     def __init__( self, fileName, tileSize ):
@@ -23,6 +24,9 @@ class Atlas:
                 tileY += 1
 
     def map_val_to_font( self, val, tileX, tileY ):
+        if Cheats.VerboseGraphics:
+            print( 'Mapping value %s to atlas %s on [%d/%d]' % ( val, self.fileName, tileX, tileY ) )
+
         n = ( tileX * self.tileSize[0], tileY * self.tileSize[1] )
         self.mapping[ val ] = self.image.subsurface( pygame.Rect( n[0], n[1], self.tileSize[0], self.tileSize[1] ) )
 

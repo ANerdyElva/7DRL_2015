@@ -4,11 +4,11 @@ import math
 from Util import *
 
 import ECS
+import Cheats
 import GameComponents
 import GameData
 from ActionSystem import ActionSystem
 import Actions
-import Characters
 import Window
 
 def LoadEntities( self ):
@@ -24,7 +24,7 @@ def LoadEntities( self ):
 
     GameData.Player = ECS.Entity()
     GameData.Player.addComponent( ECS.Components.Position( int( GameData.CenterPos[ 0 ] ), int( GameData.CenterPos[1] ) ) )
-    GameData.Player.addComponent( GameComponents.Character( Characters.Player ) )
+    GameData.Player.addComponent( GameComponents.Character( GameData.TypeDefinitions['enemy']['player'] ) )
     GameData.Player.addComponent( GameComponents.CharacterRenderer( GameData.Player.getComponent( GameComponents.Character ) ) )
     GameData.Player.addComponent( GameComponents.TurnTaker( playerAction ) )
 
@@ -45,55 +45,111 @@ def LoadEntities( self ):
     key.addComponent( ECS.Components.Position( int( GameData.TileCount[0] / 2 ), int( GameData.TileCount[1] / 2 ) + 3 ) )
     self.world.addEntity( key )
 
+    #Spawn some enemies (test)
+    i = -4
+    for n in [ 'enemy_ranged_mook_1', 'enemy_ranged_mook_2', 'enemy_ranged_mook_3' ]:
+        ent = CreateEntity( self, n )
+        ent.addComponent( ECS.Components.Position( int( GameData.TileCount[0] / 2 ) + i, int( GameData.TileCount[1] / 2 ) - 3 ) )
+        self.world.addEntity( ent )
+        i += 1
+
 
 def HandleExplosions( self, explosionList ):
     hitTiles = {}
+    positionMapping = None
 
-    for ent in explosionList:
-        explosive = ent.getComponent( GameComponents.Explosive )
+    for explosionEnt in explosionList:
+        explosive = explosionEnt.getComponent( GameComponents.Explosive )
         if not explosive.isFiring:
             continue
 
-        pos = ent.getComponent( ECS.Components.Position )
-        pos = ( pos.x, pos.y )
+        if positionMapping is None:
+            positionMapping = {}
+
+            for ent in self.world.getEntityByComponent( ECS.Components.Position, GameComponents.Character ):
+                pos = ent.getComponent( ECS.Components.Position )
+                pos = ( pos.x, pos.y )
+
+                if pos not in positionMapping:
+                    positionMapping[ pos ] = [ 0 ]
+
+                positionMapping[ pos ].append( ent )
+
+        explosionPosition = explosionEnt.getComponent( ECS.Components.Position )
+        explosionPosition = ( explosionPosition.x, explosionPosition.y )
+        print( explosionPosition )
 
         def handleRay( targetX, targetY ):
-            curStrength = explosive.strength
+            curExplosionStrength = explosive.strength
 
-            def handleBlock( x, y ):
-                nonlocal curStrength
-                if curStrength <= 0:
-                    return True
-
-                curStrength -= 1
+            lastPos = ( explosionPosition[0], explosionPosition[1] )
+            def handleBlock( x, y ): #Return value is whether or not to continue
+                nonlocal curExplosionStrength
+                if curExplosionStrength <= 0:
+                    return False
 
                 curToughness = TileTypes[ GameData.Map.get( x, y ) ].hardness
                 if curToughness is None: #Unbreakable block
-                    return True
+                    return False
+
+                nonlocal lastPos
+                if abs( lastPos[0] - x ) + abs( lastPos[1] - y ) == 2:
+                    curExplosionStrength -= 7.07106781187 # sqrt(2)*5
+                else:
+                    curExplosionStrength -= 5
+                lastPos = ( x, y )
+
+                if ( x, y ) in positionMapping:
+                    entList = positionMapping[ ( x, y ) ]
+                    entList[0] += 1
 
                 if ( x, y ) in hitTiles:
                     curToughness = hitTiles[ ( x, y ) ]
                 else:
                     hitTiles[ ( x, y ) ] = curToughness
 
-                if curStrength > curToughness:
+                if curExplosionStrength > curToughness:
                     hitTiles[ ( x, y ) ] = 0
-                    curStrength -= curToughness
-                else:
-                    hitTiles[ ( x, y ) ] = curToughness - curStrength
+                    curExplosionStrength -= curToughness
+                    return True
+                else: # curToughness >= curExplosionStrength
+                    hitTiles[ ( x, y ) ] = curToughness - curExplosionStrength
+                    curExplosionStrength = 0
+                    return False
 
-            Line( pos[0], pos[1], int( pos[0] + targetX ), int( pos[1] + targetY ), handleBlock )
+            for n in LineIter( explosionPosition[0], explosionPosition[1], int( explosionPosition[0] + targetX ), int( explosionPosition[1] + targetY ) ):
+                yield handleBlock( *n )
+            yield False
 
+        rays = []
         for i in range( explosive.rayPerSquare ):
             s = math.sin( i * math.pi / 2 / explosive.rayPerSquare )
             c = math.cos( i * math.pi / 2 / explosive.rayPerSquare )
 
-            handleRay( s * 200 + 20 * random.random() - 10, c * 200 + 20 * random.random() - 10 )
-            handleRay( -s * 200 + 20 * random.random() - 10, c * 200 + 20 * random.random() - 10 )
-            handleRay( s * 200 + 20 * random.random() - 10, -c * 200 + 20 * random.random() - 10 )
-            handleRay( -s * 200 + 20 * random.random() - 10, -c * 200 + 20 * random.random() - 10 )
+            rays.append( handleRay( s * 200 + 20 * random.random() - 10, c * 200 + 20 * random.random() - 10 ) )
+            rays.append( handleRay( -s * 200 + 20 * random.random() - 10, c * 200 + 20 * random.random() - 10 ) )
+            rays.append( handleRay( s * 200 + 20 * random.random() - 10, -c * 200 + 20 * random.random() - 10 ) )
+            rays.append( handleRay( -s * 200 + 20 * random.random() - 10, -c * 200 + 20 * random.random() - 10 ) )
+
+        newRays = []
+        while len( rays ) > 0:
+            for n in rays:
+                if next( n ):
+                    newRays.append( n )
+
+            rays = newRays
+            newRays = []
 
         explosive.onFire()
+
+
+    if positionMapping is not None:
+        hitEntities = [ n for n in positionMapping.values() if n[0] > 0 ]
+
+        for n in hitEntities:
+            damage = math.sqrt( n[0] )
+            for hitEnt in n[1:]:
+                hitEnt.getComponent( GameComponents.Character ).takeDamage( damage )
 
     if len( hitTiles ) > 0:
         for tilePos in hitTiles:
@@ -111,10 +167,19 @@ def HandleExplosions( self, explosionList ):
                 effect.addComponent( GameComponents.ExplosionRenderer() )
                 self.world.addEntity( effect )
 
-CreateEntityComponentMapping = { 'item': GameComponents.Item, 'specialbomb': GameComponents.SpecialExplosive }
+CreateEntityComponentMapping = {
+        'item': ( lambda  definition, args: GameComponents.Item( *args ) ),
+        'specialbomb': ( lambda  definition, args: GameComponents.SpecialExplosive( *args ) ),
+        'character': ( lambda  definition, _: GameComponents.Character(  definition ) ),
+        'baseAI': ( lambda  definition, _: GameComponents.TurnTaker( ai = GameComponents.TurnTakerAi() ) )
+        }
+
 def CreateEntity( self, definition ):
     if isinstance( definition, str ):
         definition = GameData.TypeDefinitions[''][ definition ]
+
+    if Cheats.Verbose:
+        print( 'CreateEntity %s' % str( definition ) )
 
     ent = ECS.Entity()
 
@@ -136,7 +201,7 @@ def CreateEntity( self, definition ):
     if definition.has( 'components' ):
         try:
             for comp in definition.components:
-                ent.addComponent( CreateEntityComponentMapping[ comp ]( * definition.components[ comp ] ) )
+                ent.addComponent( CreateEntityComponentMapping[ comp ]( definition, definition.components[ comp ] ) )
         except Exception as e:
             print( 'Exception: ' + str( e ) )
     return ent

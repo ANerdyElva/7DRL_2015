@@ -79,6 +79,9 @@ class Data:
     def __repr__( self ):
         return repr( self.__data )
 
+    def getData( self ):
+        return dict( self.__data )
+
 def Finalize():
     global _definitions
     global _incomplete

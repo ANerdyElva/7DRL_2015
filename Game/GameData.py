@@ -19,6 +19,7 @@ PlayerInventory = None
 Fonts = {}
 
 TypeDefinitions = {}
+Characters = {}
 
 #Load the tiles and register which are being used
 AtlasMap = {}
