@@ -1,10 +1,9 @@
 import math
 import random
+import GameData
 
 from Util.TileTypes import *
 from Util import Line, StarCallback
-
-centerRoomSize = ( 5, 5 )
 
 def initializeRandom( x, y ):
     dist = math.sqrt( x ** 2 + y ** 2 )
@@ -46,17 +45,17 @@ def buildFixedWalls( self, I, _buffer, val ):
     centerX = int( self.width / 2 )
     centerY = int( self.height / 2 )
 
-    for x in range( centerX - centerRoomSize[0] - 1, centerX + centerRoomSize[0] + 1 ):
-        for y in range( centerY - centerRoomSize[1] - 1, centerY + centerRoomSize[1] + 1 ):
+    for x in range( centerX - GameData.MapGen_CenterRoom_Size[0] - 1, centerX + GameData.MapGen_CenterRoom_Size[0] + 1 ):
+        for y in range( centerY - GameData.MapGen_CenterRoom_Size[1] - 1, centerY + GameData.MapGen_CenterRoom_Size[1] + 1 ):
             _buffer[ I( x, y ) ] = 0
 
     #Build center room walls
-    for x in range( centerX - centerRoomSize[0] - 1, centerX + centerRoomSize[0] + 1 ):
-        _buffer[ I( x, centerY - centerRoomSize[1] - 1 ) ] = val
-        _buffer[ I( x, centerY + centerRoomSize[1] ) ] = val
-    for y in range( centerY - centerRoomSize[1] - 1, centerY + centerRoomSize[1] + 1 ):
-        _buffer[ I( centerX - centerRoomSize[0] - 1, y ) ] = val
-        _buffer[ I( centerX + centerRoomSize[0], y ) ] = val
+    for x in range( centerX - GameData.MapGen_CenterRoom_Size[0] - 1, centerX + GameData.MapGen_CenterRoom_Size[0] + 1 ):
+        _buffer[ I( x, centerY - GameData.MapGen_CenterRoom_Size[1] - 1 ) ] = val
+        _buffer[ I( x, centerY + GameData.MapGen_CenterRoom_Size[1] ) ] = val
+    for y in range( centerY - GameData.MapGen_CenterRoom_Size[1] - 1, centerY + GameData.MapGen_CenterRoom_Size[1] + 1 ):
+        _buffer[ I( centerX - GameData.MapGen_CenterRoom_Size[0] - 1, y ) ] = val
+        _buffer[ I( centerX + GameData.MapGen_CenterRoom_Size[0], y ) ] = val
 
 def preIterInit( self, I, _buffer ):
     #Outer wall
@@ -103,18 +102,17 @@ def postInit( self, I, _buffer ):
 
     buildFixedWalls( self, I, _buffer, TILE_FIXED_WALL )
 
-    curSurface = ( centerRoomSize[0] * 2 ) * ( centerRoomSize[1] * 2 )
+    curSurface = ( GameData.MapGen_CenterRoom_Size[0] * 2 ) * ( GameData.MapGen_CenterRoom_Size[1] * 2 )
 
-    sectionSurface = 50 * 50
     curRadius = -1
 
     def setFixedWall( x, y ):
         _buffer[ I( int( x ), int( y ) ) ] = TILE_FIXED_WALL
 
     circleNum = 0
-    while curRadius < 200:
-        sectionCount = max( circleNum * 4, 1 )
-        nextSurface = curSurface + ( sectionSurface * sectionCount )
+    while curRadius < GameData.MapGen_MaxCircleRadius:
+        sectionCount = max( circleNum * GameData.MapGen_CircleSectionsPerLayer, 1 )
+        nextSurface = curSurface + ( GameData.MapGen_BaseSurface * sectionCount )
 
         nextRadius = int( math.sqrt( nextSurface / math.pi ) )
         circle( centerX, centerY, nextRadius, nextRadius + 2, setFixedWall )
