@@ -20,6 +20,10 @@ class Game( GameState ):
     def __init__( self, screen, escapeFunc ):
         super().__init__( screen )
 
+        self.world = ECS.World()
+        self.actionSystem = ActionSystem( self.world, Actions.ActionMap )
+        self.world.addSystem( self.actionSystem )
+
         self.escapeFunc = escapeFunc
         self.hotbar = Window.Hotbar( 8 )
         def updateInventory( slot ):
@@ -164,9 +168,9 @@ class Game( GameState ):
                 definition = self.getSelectedItemIfUseableAs( 'throw' )
                 if definition is not None:
                     if definition.has( 'dropsAs' ):
-                        explosive = GameUtil.CreateEntity( self, definition.dropsAs )
+                        explosive = GameUtil.CreateEntity( definition.dropsAs )
                     else:
-                        explosive = GameUtil.CreateEntity( self, definition )
+                        explosive = GameUtil.CreateEntity( definition )
                     self.playerAction = GameComponents.Action( GameData.Player, 'throwEntity', ( explosive, self.mouseTilePos ) )
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_F2 and Cheats.KeyboardCheats:
@@ -244,7 +248,7 @@ class Game( GameState ):
         definition = self.getSelectedItemIfUseableAs( 'drop' )
         if definition is not None:
             if definition.has( 'dropsAs' ):
-                explosive = GameUtil.CreateEntity( self, definition.dropsAs )
+                explosive = GameUtil.CreateEntity( definition.dropsAs )
             else:
-                explosive = GameUtil.CreateEntity( self, definition )
+                explosive = GameUtil.CreateEntity( definition )
             self.playerAction = GameComponents.Action( GameData.Player, 'dropEntity', explosive )

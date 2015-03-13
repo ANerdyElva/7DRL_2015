@@ -1,6 +1,11 @@
-tiles/normal_explosive.png
-tiles/timed_explosive.png
-tiles/special_explosive.png
+tiles/explosives/normal_explosive.png
+tiles/explosives/timed_explosive.png
+tiles/explosives/special_explosive.png
+tiles/explosives/teleporting_explosive.png
+tiles/explosives/sticky_explosive.png
+tiles/explosives/feather_explosive.png
+tiles/empty.png
+tiles/empty.png
 tiles/items/giant_amoeba.png
 tiles/items/feather2.png
 tiles/items/misc_orb.png

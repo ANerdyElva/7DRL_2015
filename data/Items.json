@@ -10,24 +10,24 @@
     { "type": "recipe", "name": "recipe_explosive_magicorb", "items": [ "item_magicorb", "item_explosive" ], "result": "item_explosive_teleport" },
 
     { "type": "item", "name": "item_feather", "displayname": "Feathers", "image": "img_feather" },
-    { "type": "image", "name": "img_feather", "file": "data/entity.png", "atlasX": 4, "atlasY": 0, "key": "feather" },
+    { "type": "image", "name": "img_feather", "file": "data/entity.png", "atlasX": 1, "atlasY": 1, "key": "feather" },
 
     { "type": "item", "name": "item_magicorb", "displayname": "Magical orb", "image": "img_magicorb" },
-    { "type": "image", "name": "img_magicorb", "file": "data/entity.png", "atlasX": 5, "atlasY": 0, "key": "magicorb" },
+    { "type": "image", "name": "img_magicorb", "file": "data/entity.png", "atlasX": 2, "atlasY": 1, "key": "magicorb" },
 
     { "type": "item", "name": "item_stickygoo", "displayname": "Sticky goo", "image": "img_giant_amoeba" },
-    { "type": "image", "name": "img_giant_amoeba", "file": "data/entity.png", "atlasX": 3, "atlasY": 0, "key": "giant_amoeba" },
+    { "type": "image", "name": "img_giant_amoeba", "file": "data/entity.png", "atlasX": 0, "atlasY": 1, "key": "giant_amoeba" },
 
     { "type": "item", "name": "item_explosive", "displayname": "Explosive", "dropsAs": "ent_explosive", "use": "drop", "image": "img_explosive" },
     { "type": "explosive", "name": "ent_explosive", "explosion": { "rayStrength": 20, "rayCount": 64, "delay": 150 }, "image": "img_explosive", "components": { "proximity": 2 } },
 
-    { "type": "item", "name": "item_explosive_teleport", "displayname": "Teleporting explosive", "dropsAs": "ent_explosive_teleport", "use": "throw", "image": "img_explosive" },
-    { "type": "explosive", "name": "ent_explosive_teleport", "explosion": { "rayStrength": 15, "rayCount": 64, "delay": 50 }, "image": "img_explosive_timed" },
+    { "type": "item", "name": "item_explosive_teleport", "displayname": "Teleporting explosive", "dropsAs": "ent_explosive_teleport", "use": "throw", "image": "img_explosive_teleport" },
+    { "type": "explosive", "name": "ent_explosive_teleport", "explosion": { "rayStrength": 15, "rayCount": 64, "delay": 50 }, "image": "img_explosive_teleport" },
 
-    { "type": "item", "name": "item_explosive_range", "displayname": "Thrown explosive", "dropsAs": "ent_explosive_range", "use": "throw", "image": "img_explosive" },
-    { "type": "explosive", "name": "ent_explosive_range", "explosion": { "rayStrength": 15, "rayCount": 64, "delay": 50 }, "image": "img_explosive_timed" },
+    { "type": "item", "name": "item_explosive_range", "displayname": "Thrown explosive", "dropsAs": "ent_explosive_range", "use": "throw", "image": "img_explosive_feather" },
+    { "type": "explosive", "name": "ent_explosive_range", "explosion": { "rayStrength": 15, "rayCount": 64, "delay": 50 }, "image": "img_explosive_feather" },
 
-    { "type": "item", "name": "item_explosive_sticky", "displayname": "Sticky explosive", "dropsAs": "ent_explosive_sticky", "use": "throw", "image": "img_explosive" },
+    { "type": "item", "name": "item_explosive_sticky", "displayname": "Sticky explosive", "dropsAs": "ent_explosive_sticky", "use": "throw", "image": "img_explosive_sticky" },
     { "type": "explosive", "name": "ent_explosive_sticky", "explosion": { "rayStrength": 15, "rayCount": 64, "delay": 100 }, "components": { "sticky": 2.5 }, "image": "img_explosive_timed" },
 
     { "type": "item", "name": "item_explosive_special", "displayname": "Big Golden Explosive", "dropsAs": "ent_explosive_special", "use": "drop", "image": "img_explosive_special", "indestructible": true },

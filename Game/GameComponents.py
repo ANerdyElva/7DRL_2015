@@ -5,6 +5,7 @@ from Util.TileTypes import *
 import pygame
 import Math2D
 import math
+import GameUtil
 
 class Explosive( ECS.Component ):
     def __init__( self, rayPerSquare, strength ):
@@ -112,6 +113,13 @@ class Character( ECS.Component ):
         self.attributes[ 'Health' ] -= count
         if self.attributes[ 'Health' ] < 0:
             self.entity.world.removeEntity( self.entity )
+
+            if self.definition.has( 'drops' ):
+                for n in self.definition.drops:
+                    dropped = GameUtil.CreateEntity( n )
+                    pos = self.entity.getComponent( ECS.Components.Position )
+                    dropped.addComponent( ECS.Components.Position( pos.x, pos.y ) )
+                    self.entity.world.addEntity( dropped )
 
 
 class Item( ECS.Component ):
