@@ -40,3 +40,10 @@ def Line(x0, y0, x1, y1, cb):
     if cb(x, y) == True:
         return
 
+
+def LineIter( x0, y0, x1, y1 ):
+    pixels = []
+    Line( x0, y0, x1, y1, lambda x, y: pixels.append( ( x, y ) ) )
+
+    for p in pixels:
+        yield p

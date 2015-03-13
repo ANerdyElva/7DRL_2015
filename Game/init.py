@@ -24,7 +24,8 @@ import GameData
 
 import DataInit
 for n in glob.glob( 'data/*.json' ):
-    print( 'Loading file: %s' % n )
+    if Cheats.Verbose:
+        print( 'Loading file: %s' % n )
     DataInit.Load( n )
 DataInit.Finalize()
 

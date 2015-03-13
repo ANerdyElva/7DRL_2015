@@ -1,5 +1,4 @@
 tiles/normal_explosive.png
 tiles/timed_explosive.png
 tiles/special_explosive.png
-tiles/empty.png
-tiles/deep_elf_f.png
+tiles/items/giant_amoeba.png

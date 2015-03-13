@@ -4,7 +4,6 @@ from GameComponents import Character
 import GameComponents
 import ECS
 
-import Characters
 import Math2D
 
 import GameData
@@ -12,7 +11,7 @@ import GameData
 MOVE_LENGTH = 100
 MIN_TURN_LENGTH = 1
 
-defaultCharacter = Character( Characters.Enemy )
+defaultCharacter = Character( GameData.TypeDefinitions['']['enemy_base'] )
 
 def _sqrt( i ):
     if i == 2:

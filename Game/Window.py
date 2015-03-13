@@ -180,6 +180,9 @@ class Button( GuiPart ):
                 ( ( self.surface.get_width() - renderedFont.get_width() ) / 2, ( self.surface.get_height() - renderedFont.get_height() ) / 2 ) )
 
     def doInteraction( self, x, y, pressed ):
+        if x < 0 or x > self.width or y < 0 or y > self.height:
+            return False
+
         if pressed and self.pressCallback is not None:
             self.pressCallback( self )
 

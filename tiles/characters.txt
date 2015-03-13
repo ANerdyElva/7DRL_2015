@@ -1,1 +1,15 @@
 tiles/deep_elf_f.png
+tiles/empty.png
+tiles/empty.png
+tiles/empty.png
+tiles/empty.png
+tiles/empty.png
+tiles/empty.png
+tiles/empty.png
+tiles/enemy/brown_ooze.png
+tiles/enemy/centaur_darkgrey_m.png
+tiles/enemy/draconian_f.png
+tiles/enemy/draconian_green_m.png
+tiles/enemy/ghoul.png
+tiles/enemy/kenku_winged_f.png
+tiles/enemy/acid_blob.png

@@ -1,0 +1,11 @@
+[
+{ "type": "image", "name": "img_player", "file": "data/characters.png", "atlasX": 0, "atlasY": 0, "key": "player" },
+
+{ "type": "image", "name": "img_brown_ooze", "file": "data/characters.png", "atlasX": 0, "atlasY": 1, "key": "brown_ooze" },
+{ "type": "image", "name": "img_centaur_darkgrey_m", "file": "data/characters.png", "atlasX": 1, "atlasY": 1, "key": "centaur_darkgrey_m" },
+{ "type": "image", "name": "img_draconian_f", "file": "data/characters.png", "atlasX": 2, "atlasY": 1, "key": "draconian_f" },
+{ "type": "image", "name": "img_draconian_green_m", "file": "data/characters.png", "atlasX": 3, "atlasY": 1, "key": "draconian_green_m" },
+{ "type": "image", "name": "img_ghoul", "file": "data/characters.png", "atlasX": 4, "atlasY": 1, "key": "ghoul" },
+{ "type": "image", "name": "img_kenku_winged_f", "file": "data/characters.png", "atlasX": 5, "atlasY": 1, "key": "kenku_winged_f" },
+{ "type": "image", "name": "img_acid_blob", "file": "data/characters.png", "atlasX": 6, "atlasY": 1, "key": "acid_blob" }
+]

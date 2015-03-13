@@ -24,7 +24,7 @@ class Explosive( ECS.Component ):
 
 class SpecialExplosive( Explosive ):
     def __init__( self ):
-        super().__init__( 16, 8 )
+        super().__init__( 64, 30 )
 
     def onFire( self ):
         self.entity.world.removeEntity( self.entity )
@@ -68,18 +68,26 @@ class ExplosionRenderer( ECS.Components.Renderer ):
         GameData.ExplosiveAtlas.render( frame, target, *screenPos )
 
 class Character( ECS.Component ):
-    def __init__( self, baseType ):
-        self.baseType = baseType
+    def __init__( self, definition ):
+        self.definition = definition
         self.attributes = {}
 
-        for key in self.baseType:
+        data = self.definition.getData()
+        for key in data:
             if key.startswith('base'):
-                self.attributes[ key[6:] ] = self.baseType[key]
-            self.attributes[ key ] = self.baseType[ key ]
+                self.attributes[ key[4:] ] = data[key]
+            self.attributes[ key ] = data[ key ]
 
-        def _setEntity( self, ent ):
-            super()._setEntity( ent )
-            ent.passable = False
+    def _setEntity( self, ent ):
+        super()._setEntity( ent )
+        ent.passable = False
+
+    def takeDamage( self, count ):
+        print( self.attributes )
+        self.attributes[ 'Health' ] -= count
+        if self.attributes[ 'Health' ] < 0:
+            self.entity.world.removeEntity( self.entity )
+
 
 class Item( ECS.Component ):
     def __init__( self, definition ):
@@ -150,7 +158,8 @@ class Inventory( ECS.Component ):
 
 class CharacterRenderer( ECS.Components.Renderer ):
     def __init__( self, char ):
-        super().__init__( char.baseType['spriteAtlas'], char.baseType['spriteId'] )
+        img = GameData.TypeDefinitions[ 'image' ][ char.definition.image ]
+        super().__init__( GameData.AtlasMap[ img.file ], img.key )
 
 class Action():
     def __init__( self, entity, name, params ):
@@ -175,7 +184,7 @@ class TurnTaker( ECS.Components.Component ):
 
     def finalize( self ):
         if self.entity.hasComponent( Character ):
-            self.randomRange = self.entity.getComponent( Character ).baseType['randomRange']
+            self.randomRange = self.entity.getComponent( Character ).definition.randomRange
         else:
             self.randomRange = 0
 
@@ -207,4 +216,4 @@ class TurnTakerAi():
                     move = ( nextPoint[0] - _x, nextPoint[1] - _y )
                     return Action( ent, 'move', move )
 
-        return Action( ent, 'sleep', 400 )
+        return Action( ent, 'sleep', random.randrange( 400, 600 ) )
