@@ -4,6 +4,7 @@ from GameComponents import Character
 import GameComponents
 import ECS
 
+import math
 import Math2D
 
 import GameData

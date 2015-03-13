@@ -32,7 +32,7 @@ class Game( GameState ):
         self.actionWindow = Window.Window( 300, 200, 0, self.screen.get_height() - 200 )
         self.guiParts.append( self.actionWindow )
         self.actionWindow.guiParts.append( Window.Button(
-            LoadFont( 'ButtonFont', 'data/segoesc.ttf', 10 ),
+            LoadFont( 'ButtonFont', 'data/framd.ttf', 10 ),
             'Combine', ( 20 , 30 ), ( 260, 25 ) ) )
 
         self.pickupWindow = Window.Window( 300, 200, self.screen.get_width() - 300, self.screen.get_height() - 200 )
