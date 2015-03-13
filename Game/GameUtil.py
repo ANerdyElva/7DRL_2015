@@ -174,7 +174,8 @@ CreateEntityComponentMapping = {
         'character': ( lambda  definition, _: ( GameComponents.Character( definition ), GameComponents.CharacterRenderer( definition ) ) ),
         'baseAI': ( lambda  definition, _: GameComponents.TurnTaker( ai = GameComponents.TurnTakerAi() ) ),
         'proximity': ( lambda definition, radius: GameComponents.ProximityBomb( radius ) ),
-        'sticky': ( lambda definition, _: GameComponents.StickyBomb() ),
+        'sticky': ( lambda definition, distance: GameComponents.StickyBomb( distance ) ),
+        'explosiveRenderer': ( lambda definition, _: GameComponents.BombRenderer( definition ) ),
         }
 
 def CreateEntity( self, definition ):

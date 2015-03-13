@@ -71,10 +71,10 @@ class ActionSystem():
         firstEnt = self.toProcessList.pop()
         turnTaker = firstEnt.getComponent( TurnTaker )
 
-        if self.curTurn + maxTime < firstEnt._nextTurn:
-            self.curTurn += maxTime
-            self._insertEnt( firstEnt )
-            return True
+        #if self.curTurn + maxTime < firstEnt._nextTurn:
+        #    self.curTurn += maxTime
+        #    self._insertEnt( firstEnt )
+        #    return True
 
         action = turnTaker.getNextTurn( self.curTurn )
         if action is None:
