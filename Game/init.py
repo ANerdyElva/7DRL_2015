@@ -33,6 +33,10 @@ DataInit.Finalize()
 GameData.Screen = screen
 GameData.update()
 
+from Util import LoadFont
+LoadFont( 'ButtonFont', 'data/framd.ttf', 10 )
+LoadFont( 'NameFont', 'data/framd.ttf', 14 )
+
 import MainMenu
 state = MainMenu.MainMenu( GameData.Screen )
 state.run()

@@ -82,13 +82,18 @@ def LoadEntities( self ):
 
             return ( int( math.sin( angle ) * r + GameData.CenterPos[0] ), int( math.cos( angle ) * r + GameData.CenterPos[1] ) )
 
+        def isPointValid( point ):
+            return ( GameData.Map.get( *point ) == TILE_AIR
+                    and abs( point[0] - GameData.CenterPos[0] ) > GameData.MapGen_CenterRoom_Size[0]
+                    and abs( point[1] - GameData.CenterPos[1] ) > GameData.MapGen_CenterRoom_Size[1] )
+
         for curSection in range( sectionCount ):
             spawnsRemaining = circleNum * GameData.MapGen_MobsPerLevelIncrease
 
             while True:
                 point = getPointInsection( curSection )
 
-                if GameData.Map.get( *point ) == TILE_AIR:
+                if isPointValid( point ):
                     key = CreateEntity( self, 'item_explosive_special' )
                     key.addComponent( ECS.Components.Position( *point ) )
                     self.world.addEntity( key )
@@ -97,9 +102,9 @@ def LoadEntities( self ):
             for attempt in range( int( spawnsRemaining * 2.5 ) ):
                 point = getPointInsection( curSection )
 
-                if GameData.Map.get( *point ) == TILE_AIR:
+                if isPointValid( point ):
                     spawnsRemaining -= 1
-                    ent = CreateEntity( self, spawnables[ circleNum % len( spawnables ) ] )
+                    ent = CreateEntity( self, random.choice( spawnables ) )
                     ent.addComponent( ECS.Components.Position( *point ) )
                     ent.active = False
                     self.world.addEntity( ent )
@@ -113,14 +118,6 @@ def LoadEntities( self ):
         curRadius = nextRadius
         curSurface = int( curRadius ** 2 * math.pi )
         circleNum += 1
-
-    i = -4
-    #for n in [ 'enemy_ranged_mook_1', 'enemy_ranged_mook_2', 'enemy_ranged_mook_3' ]:
-    for n in [ 'enemy_ranged_mook_1' ]:
-        ent = CreateEntity( self, n )
-        ent.addComponent( ECS.Components.Position( int( GameData.TileCount[0] / 2 ) + i, int( GameData.TileCount[1] / 2 ) - 3 ) )
-        self.world.addEntity( ent )
-        i += 1
 
 
 def HandleExplosions( self, explosionList ):
@@ -392,7 +389,7 @@ def UpdateInventory( game ):
         definition = inventory.inventory[selected][0]
         defName = definition.name
 
-        game.actionWindow.guiParts = []
+        game.actionWindow.guiParts = [ Window.Text( LoadFont( 'NameFont', '', '' ), definition.displayname, ( 20, 5 ), ( 260, 25 ) ) ]
         count = 1
 
         def addButton( text, cb ):

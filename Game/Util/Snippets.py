@@ -3,7 +3,7 @@ import pygame
 
 import functools
 
-def LoadFont( name, fileName, size ):
+def LoadFont( name, fileName = '', size = '' ):
     if name in GameData.Fonts:
         return GameData.Fonts[name]
 

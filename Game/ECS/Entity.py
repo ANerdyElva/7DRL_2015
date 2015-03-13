@@ -12,6 +12,8 @@ class Entity():
         self.passable = True
         self.active = True
 
+        self.attackDistance = 8
+
         Entity.nextId += 1
 
     def setWorld( self, world ):

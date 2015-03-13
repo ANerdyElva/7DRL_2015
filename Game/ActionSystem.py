@@ -64,7 +64,7 @@ class ActionSystem():
             tp.insert( mid, ent )
 
 
-    def process( self, maxTime ):
+    def process( self ):
         if len( self.toProcessList ) == 0:
             self.updateProcessList()
             if len( self.toProcessList ) == 0:
@@ -73,11 +73,6 @@ class ActionSystem():
 
         firstEnt = self.toProcessList.pop()
         turnTaker = firstEnt.getComponent( TurnTaker )
-
-        #if self.curTurn + maxTime < firstEnt._nextTurn:
-        #    self.curTurn += maxTime
-        #    self._insertEnt( firstEnt )
-        #    return True
 
         action = turnTaker.getNextTurn( self.curTurn )
         if action is None:

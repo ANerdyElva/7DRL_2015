@@ -2,3 +2,5 @@ tiles/normal_explosive.png
 tiles/timed_explosive.png
 tiles/special_explosive.png
 tiles/items/giant_amoeba.png
+tiles/items/feather2.png
+tiles/items/misc_orb.png
