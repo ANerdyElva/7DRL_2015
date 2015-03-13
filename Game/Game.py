@@ -221,7 +221,8 @@ class Game( GameState ):
                 GameData.CenterPos[0] += 1
 
     def quit( self, event ):
-        if self.escapeFunc( event ):
+        var = self.escapeFunc( event )
+        if var:
             self.IsRunning = False
 
 
