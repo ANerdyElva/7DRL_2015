@@ -24,11 +24,37 @@ class Map:
 
         self.fovUpdater = fovUpdater
 
+        self.pathEnd = None
+
     def I( self, x, y ):
         return x + y * self.width
 
     def get( self, x, y ):
         return self._buffer[ self.I( x, y ) ]
+
+    def findPath( self, start, end ):
+        def point( p ):
+            return ( int( math.floor( p.x ) ), int( math.floor( p.y ) ) )
+
+        start = point( start )
+        end = point( end )
+
+        if self.pathEnd != end:
+            self.pathEnd = end
+
+            self.dijkstra = tcod.dijkstra_new( self.tcodMap, 1.41421356237 )
+            tcod.dijkstra_compute( self.dijkstra, end[0], end[1] )
+
+        if not tcod.dijkstra_path_set( self.dijkstra, start[0], start[1] ):
+            return None
+
+        ret = []
+        while not tcod.dijkstra_is_empty( self.dijkstra ):
+            x, y = tcod.dijkstra_path_walk( self.dijkstra )
+            ret.append( ( x, y ) )
+
+        return ret
+
 
     def isPassable( self, x, y ):
         if self.tcodMapDirty:

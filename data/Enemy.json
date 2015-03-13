@@ -4,9 +4,18 @@
 
     { "type": "enemy", "name": "player", "baseHealth": 20, "randomRange": 0, "image": "img_player", "movementSpeed": 10 },
 
-    { "type": "enemy", "name": "enemy_base", "baseHealth": 5, "randomRange": 5, "image": "img_enemy_base", "movementSpeed": 8, "components": { "character": [], "baseAI": [] } },
+    {
+        "type": "enemy",
+        "name": "enemy_base",
+        "baseHealth": 5,
+        "randomRange": 5,
+        "image": "img_enemy_base",
+        "movementSpeed": 8,
+        "damageRest": 30,
+        "components": { "character": [], "baseAI": [] }
+    },
 
-    { "type": "enemy_base", "name": "enemy_ranged_mook_1", "spawnCluster": 4, "baseHealth": 5, "attackRange": 4, "image": "img_centaur_darkgrey_m" },
-    { "type": "enemy_base", "name": "enemy_ranged_mook_2", "spawnCluster": 4, "baseHealth": 5, "attackRange": 4, "image": "img_draconian_f" },
-    { "type": "enemy_base", "name": "enemy_ranged_mook_3", "spawnCluster": 4, "baseHealth": 5, "attackRange": 4, "image": "img_kenku_winged_f" }
+    { "type": "enemy_base", "name": "enemy_ranged_mook_1", "spawnCluster": 4, "baseHealth": 5, "attackRange": 4, "damage": 4, "damageRange": 3, "image": "img_centaur_darkgrey_m" },
+    { "type": "enemy_base", "name": "enemy_ranged_mook_2", "spawnCluster": 4, "baseHealth": 5, "attackRange": 4, "damage": 2, "damageRange": 6, "damageRest": 60, "image": "img_draconian_f" },
+    { "type": "enemy_base", "name": "enemy_ranged_mook_3", "spawnCluster": 4, "baseHealth": 5, "attackRange": 4, "damage": 3, "damageRange": 5, "damageRange": 5, "image": "img_kenku_winged_f" }
 ]

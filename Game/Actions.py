@@ -53,8 +53,15 @@ def Move( actionName, actionSystem, ent, params ):
 def Sleep( actionName, actionSystem, ent, params ):
     return params
 
-def Attack( actionName, actionSystem, ent, params ):
-    return 10
+def Attack( actionName, actionSystem, ent, target ):
+    selfChar = ent.getComponent( GameComponents.Character )
+    targetChar = target.getComponent( GameComponents.Character )
+
+    targetChar.takeDamage( selfChar.definition.damage )
+    if targetChar.attributes[ 'Health' ] <= 0:
+        ent.getComponent( GameComponents.TurnTaker ).target = None
+
+    return selfChar.definition.damageRest
 
 def ThrowEntity( actionName, actionSystem, ent, params ):
     droppedEnt = params[0]
@@ -77,11 +84,17 @@ def DropEntity( actionName, actionSystem, ent, droppedEnt ):
 def Explode( actionName, actionSystem, ent, params ):
     return ent.getComponent( GameComponents.Explosive ).doFire()
 
+def FindEnemy( actionName, actionSystem, ent, turnTaker ):
+    #TODO Make this smarter? Maybe, who knows
+    turnTaker.target = GameData.Player
+
 
 ActionMap = {}
 ActionMap[ 'move' ] = Move
 ActionMap[ 'sleep' ] = Sleep
 ActionMap[ 'attack' ] = Attack
+ActionMap[ 'findEnemy' ] = FindEnemy
+
 ActionMap[ 'dropEntity' ] = DropEntity
 ActionMap[ 'throwEntity' ] = ThrowEntity
 
