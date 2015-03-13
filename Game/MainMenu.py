@@ -108,12 +108,17 @@ class MainMenu( GameState ):
 
     def resumeGame( self, event ):
         self.IsRunning = False
+        self.RetVal = False
 
     def quit( self, event ):
         if self.isMain:
-            self.IsRunning = False
-        else:
             GameData.IsGameRunning = False
+        else:
+            if event.type == pygame.KEYUP:
+                self.IsRunning = False
+                self.RetVal = False
+            else:
+                GameData.IsGameRunning = False
 
     def quitToMain( self, event ):
         self.IsRunning = False
