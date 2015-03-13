@@ -197,7 +197,7 @@ class Game( GameState ):
                 elif event.key == pygame.K_F5 and Cheats.KeyboardCheats:
                     GameData.PlayerPosition.x = 5
                 elif event.key == pygame.K_F6 and Cheats.KeyboardCheats:
-                    GameData.Player.getComponent( GameComponents.Character ).attributes['Health'] -= 10
+                    GameData.Player.getComponent( GameComponents.Character ).takeDamage( 10 )
                 elif event.key in ( pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5, pygame.K_6, pygame.K_7, pygame.K_8 ):
                     slot = ( event.key - pygame.K_0 ) - 1
                     self.inventorySlot = slot

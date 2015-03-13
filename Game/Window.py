@@ -247,14 +247,23 @@ class MessageWindow( Window ):
             else:
                 curFontSize = int( line )
 
-        super().__init__( curWidth + 40, curHeight + 70, 0, 0 )
+        image = None
+        if self.definition.has( 'image' ):
+            image = pygame.image.load( self.definition.image )
+            curHeight += image.get_height()
+
+        super().__init__( curWidth + 40, curHeight + 90, 0, 0 )
 
         curPos = 20
         for n in self.lines:
             self.surface.blit( n, ( ( self.width - n.get_width() ) / 2, curPos ) )
             curPos += n.get_height() + 2
 
-        self.guiParts.append( Button( Util.LoadFont( 'ButtonFont' ), 'Continue', ( ( curWidth - 40 ) / 2, curPos ), ( 80, 15 ) ) )
+        if image is not None:
+            cornerPos = ( self.width - image.get_width() - 20, self.height - image.get_height() - 20 )
+            self.surface.blit( image, cornerPos )
+
+        self.guiParts.append( Button( Util.LoadFont( 'ButtonFont' ), 'Continue', ( ( self.width - 160 ) / 2, self.height - 60 ), ( 160, 35 ) ) )
         self.guiParts[0].pressCallback = callback
 
     def render( self, target ):

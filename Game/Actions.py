@@ -50,7 +50,7 @@ def Move( actionName, actionSystem, ent, params ):
     pos.y += params[ 1 ]
 
     char = _getChar( ent )
-    return diff * char.attributes[ 'movementSpeed' ] * 10
+    return diff * ( 100 / char.attributes[ 'movementSpeed' ] )
 
 def Sleep( actionName, actionSystem, ent, params ):
     return params
