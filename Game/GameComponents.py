@@ -115,7 +115,8 @@ class Character( ECS.Component ):
         if self.attributes[ 'Health' ] < 0:
             self.entity.world.removeEntity( self.entity )
 
-            self.onRemove( self )
+            if self.onRemove is not None:
+                self.onRemove( self )
 
             if self.definition.has( 'drops' ):
                 for n in self.definition.drops:
