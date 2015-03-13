@@ -34,6 +34,8 @@ class Game( GameState ):
         self.guiParts.append( self.hotbar )
         self.inventorySlot = 0
 
+        self.guiParts.append( Window.MessageWindow( 'intro', lambda *_: self.guiParts.pop( 1 ) ) )
+
         self.actionWindow = Window.Window( 300, 200, 0, self.screen.get_height() - 200 )
         self.guiParts.append( self.actionWindow )
         self.actionWindow.guiParts.append( Window.Button(
@@ -72,6 +74,16 @@ class Game( GameState ):
             steps += 1
             if ( pygame.time.get_ticks() - processingStart ) > 20:
                 break
+
+            if ( ( playerPos.x - GameData.CenterPos[0] ) ** 2 + ( playerPos.y - GameData.CenterPos[1] ) ** 2 ) > 220:
+                def stopRunning():
+                    self.IsRunning = False
+                self.guiParts.append( Window.MessageWindow( 'success', lambda *_: stopRunning() ) )
+            elif GameData.Player.getComponent( GameComponents.Character ).attributes['Health'] <= 0:
+                def stopRunning():
+                    self.IsRunning = False
+                self.guiParts.append( Window.MessageWindow( 'failure', lambda *_: stopRunning() ) )
+
 
         itemsAtCurPos = [ n for n in [ n.getComponent( GameComponents.Item ) for n in self.world.getEntitiesAtPos( GameData.PlayerPosition ) ] if n is not None ]
         if len( itemsAtCurPos ) > 0:
@@ -182,6 +194,10 @@ class Game( GameState ):
                     GameData.PlayerInventory.addItem( GameData.TypeDefinitions['item']['item_stickygoo'], 10 )
                     GameData.PlayerInventory.addItem( GameData.TypeDefinitions['item']['item_feather'], 10 )
                     GameData.PlayerInventory.addItem( GameData.TypeDefinitions['item']['item_magicorb'], 10 )
+                elif event.key == pygame.K_F5 and Cheats.KeyboardCheats:
+                    GameData.PlayerPosition.x = 5
+                elif event.key == pygame.K_F6 and Cheats.KeyboardCheats:
+                    GameData.Player.getComponent( GameComponents.Character ).attributes['Health'] -= 10
                 elif event.key in ( pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5, pygame.K_6, pygame.K_7, pygame.K_8 ):
                     slot = ( event.key - pygame.K_0 ) - 1
                     self.inventorySlot = slot

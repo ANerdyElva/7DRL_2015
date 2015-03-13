@@ -28,6 +28,10 @@ Fonts = {}
 TypeDefinitions = {}
 Characters = {}
 
+Counters = { 'MonsterDeath': 0, 'BombCount': 0, 'SpecialCount': 0 }
+def IncrementCounter( counter ):
+    Counters[ counter ] += 1
+
 #Load the tiles and register which are being used
 AtlasMap = {}
 

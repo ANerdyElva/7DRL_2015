@@ -66,6 +66,7 @@ def Attack( actionName, actionSystem, ent, target ):
     return selfChar.definition.damageRest
 
 def ThrowEntity( actionName, actionSystem, ent, params ):
+    GameData.Counters[ 'BombCount' ] += 1
     droppedEnt = params[0]
     dropPos = params[1]
 
@@ -76,6 +77,7 @@ def ThrowEntity( actionName, actionSystem, ent, params ):
     return 20
 
 def DropEntity( actionName, actionSystem, ent, droppedEnt ):
+    GameData.Counters[ 'BombCount' ] += 1
     pos = ent.getComponent( ECS.Components.Position )
     droppedEnt.addComponent( ECS.Components.Position( pos.x, pos.y ) )
 
