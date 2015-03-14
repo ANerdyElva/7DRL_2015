@@ -21,8 +21,8 @@
     { "type": "item", "name": "item_explosive", "displayname": "Explosive", "dropsAs": "ent_explosive", "use": "drop", "image": "img_explosive" },
     { "type": "explosive", "name": "ent_explosive", "explosion": { "rayStrength": 20, "rayCount": 64, "delay": 150 }, "image": "img_explosive", "components": { "proximity": 2 } },
 
-    { "type": "item", "name": "item_explosive_teleport", "displayname": "Teleporting explosive", "dropsAs": "ent_explosive_teleport", "use": "throw", "image": "img_explosive_teleport" },
-    { "type": "explosive", "name": "ent_explosive_teleport", "explosion": { "rayStrength": 15, "rayCount": 64, "delay": 50 }, "image": "img_explosive_teleport" },
+    { "type": "item", "name": "item_explosive_teleport", "displayname": "Teleporting explosive", "dropsAs": "ent_explosive_teleport", "use": "drop", "image": "img_explosive_teleport" },
+    { "type": "explosive", "name": "ent_explosive_teleport", "explosion": { "rayStrength": 15, "rayCount": 64, "delay": 50 }, "components": { "sticky": 10 }, "image": "img_explosive_teleport" },
 
     { "type": "item", "name": "item_explosive_range", "displayname": "Thrown explosive", "dropsAs": "ent_explosive_range", "use": "throw", "image": "img_explosive_feather" },
     { "type": "explosive", "name": "ent_explosive_range", "explosion": { "rayStrength": 15, "rayCount": 64, "delay": 50 }, "image": "img_explosive_feather" },
