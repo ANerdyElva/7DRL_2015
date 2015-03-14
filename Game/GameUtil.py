@@ -288,7 +288,6 @@ def CreateEntity( definition ):
 def ShowCombineCount( game, recipe, maxCraftable ):
     game.actionWindow.guiParts = []
     count = 1
-    print( recipe )
 
     def addButton( text, cb ):
         nonlocal count
