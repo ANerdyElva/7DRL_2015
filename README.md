@@ -7,6 +7,10 @@ But that's okay.
 
 You've got explosives.
 
+# Compiled version (Windows and linux binaries)
+Available for download from:
+
+http://goo.gl/SYGWcM
 
 # Made with:
 Python 3.4
