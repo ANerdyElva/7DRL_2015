@@ -28,7 +28,7 @@
     { "type": "explosive", "name": "ent_explosive_range", "explosion": { "rayStrength": 15, "rayCount": 64, "delay": 50 }, "image": "img_explosive_feather" },
 
     { "type": "item", "name": "item_explosive_sticky", "displayname": "Sticky explosive", "dropsAs": "ent_explosive_sticky", "use": "throw", "image": "img_explosive_sticky" },
-    { "type": "explosive", "name": "ent_explosive_sticky", "explosion": { "rayStrength": 15, "rayCount": 64, "delay": 100 }, "components": { "sticky": 2.5 }, "image": "img_explosive_timed" },
+    { "type": "explosive", "name": "ent_explosive_sticky", "explosion": { "rayStrength": 15, "rayCount": 64, "delay": 100 }, "components": { "sticky": 2.5 }, "image": "img_explosive_sticky" },
 
     { "type": "item", "name": "item_explosive_special", "displayname": "Big Golden Explosive", "dropsAs": "ent_explosive_special", "use": "drop", "image": "img_explosive_special", "indestructible": true },
     { "type": "explosive", "name": "ent_explosive_special", "explosion": { "delay": 200 }, "components": { "specialbomb": [], "item": [ "item_explosive_special" ]  }, "image": "img_explosive_special" }
