@@ -7,10 +7,10 @@ from GameState import GameState
 from Game import Game
 import Util
 
+isFullscreen = False
 class MainMenu( GameState ):
     def __init__( self, screen, isMain = True ):
         super().__init__( screen )
-        self.background = GameData.MenuBackground
         self.isMain = isMain
 
         self.lines = []
@@ -21,6 +21,21 @@ class MainMenu( GameState ):
 
         self.lines.append( tuple( ) )
         self.lines.append( tuple( ) )
+
+        def toggleFullscreen( *_ ):
+            global isFullscreen
+            if isFullscreen:
+                isFullscreen = False
+                GameData.Screen = pygame.display.set_mode( ( 1280, 960 ), 0 )
+            else:
+                isFullscreen = True
+                GameData.Screen = pygame.display.set_mode( pygame.display.list_modes()[0], pygame.FULLSCREEN )
+            GameData.update()
+
+        if self.isMain:
+            self.lines.append( [ 'Toggle fullscreen', toggleFullscreen ] )
+        else:
+            self.lines.append( tuple( ) )
         self.lines.append( tuple( ) )
 
         if not isMain:
@@ -69,7 +84,7 @@ class MainMenu( GameState ):
 
         if alpha < 255:
             rect = pygame.Rect( _pos[0], _pos[1], rendered.get_width(), rendered.get_height() )
-            back = self.background.subsurface( rect ).convert()
+            back = GameData.MenuBackground.subsurface( rect ).convert()
             back.blit( rendered, ( 0, 0 ) )
 
             back.set_alpha( alpha )
@@ -78,7 +93,7 @@ class MainMenu( GameState ):
             self.screen.blit( rendered, _pos )
 
     def render( self ):
-        self.screen.blit( self.background, ( 0, 0 ) )
+        self.screen.blit( GameData.MenuBackground, ( 0, 0 ) )
 
         def timedRender( text, pos, time ):
             if pygame.time.get_ticks() > time:

@@ -18,11 +18,12 @@ Release: all
 	cp -r data Release
 	cp -r gui Release
 
-	cp Launcher.sh Launcher.bat Release
 
 ifeq ($(OS),Windows_NT)
 	$(MAKE) Release/Windows
+	cp Launcher.bat Release
 else
+	cp Launcher.sh Release
 
 ifeq ($(shell uname -m),x86_64)
 	$(MAKE) Release/Linux64
@@ -74,4 +75,8 @@ dist: all dist_src
 
 	( cd dist_src && python -m py2exe init.py -d ../dist -c -O  )
 
+
+youvegotexplosives.zip: Release
+	cp Release YouveGotExplosives -r
+	rmdir YouveGotExplosives/* || true
 
