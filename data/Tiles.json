@@ -5,6 +5,6 @@
     { "type": "image", "name": "img_explosive_timed", "file": "data/entity.png", "atlasX": 1, "atlasY": 0, "key": "explosive_timed" },
     { "type": "image", "name": "img_explosive_special", "file": "data/entity.png", "atlasX": 2, "atlasY": 0, "key": "explosive_special" },
     { "type": "image", "name": "img_explosive_teleport", "file": "data/entity.png", "atlasX": 3, "atlasY": 0, "key": "explosive_teleport" },
-    { "type": "image", "name": "img_explosive_feather", "file": "data/entity.png", "atlasX": 4, "atlasY": 0, "key": "explosive_feather" },
-    { "type": "image", "name": "img_explosive_sticky", "file": "data/entity.png", "atlasX": 5, "atlasY": 0, "key": "explosive_sticky" }
+    { "type": "image", "name": "img_explosive_sticky", "file": "data/entity.png", "atlasX": 4, "atlasY": 0, "key": "explosive_sticky" }
+    { "type": "image", "name": "img_explosive_feather", "file": "data/entity.png", "atlasX": 5, "atlasY": 0, "key": "explosive_feather" },
 ]
