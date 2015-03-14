@@ -205,7 +205,7 @@ class CharacterRenderer( ECS.Components.Renderer ):
     def render( self, target, screenPos ):
         fillPart = self.character.attributes[ 'Health' ] / self.character.attributes[ 'baseHealth' ]
 
-        target.fill( ( 137, 22, 35 ), pygame.Rect( screenPos[0], screenPos[1] - 2, GameData.TileSize[0], 5 ) )
+        target.fill( ( 87, 12, 25 ), pygame.Rect( screenPos[0], screenPos[1] - 2, GameData.TileSize[0], 5 ) )
         target.fill( ( 250, 42, 0 ), pygame.Rect( screenPos[0], screenPos[1] - 2, ( GameData.TileSize[0] * fillPart ), 5 ) )
 
         super().render( target, screenPos )
