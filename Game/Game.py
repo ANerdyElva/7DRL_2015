@@ -75,7 +75,7 @@ class Game( GameState ):
             if ( pygame.time.get_ticks() - processingStart ) > 20:
                 break
 
-            if ( ( playerPos.x - GameData.CenterPos[0] ) ** 2 + ( playerPos.y - GameData.CenterPos[1] ) ** 2 ) > 220:
+            if ( ( GameData.PlayerPosition.x - GameData.CenterPos[0] ) ** 2 + ( GameData.PlayerPosition.y - GameData.CenterPos[1] ) ** 2 ) > 220 * 220:
                 def stopRunning():
                     self.IsRunning = False
                 self.guiParts.append( Window.MessageWindow( 'success', lambda *_: stopRunning() ) )
